@@ -20,6 +20,7 @@ funding_crawler/
 │   └── settings.py             # Zentrale Konfigurationsdatei
 │
 ├── data/
+│   ├── cache/                  # Hier wird der sqlite-basierte Cache für die geladenen HTML-Seiten angelegt
 │   └── output.json             # Ausgabedatei im JSON-Format
 │
 ├── logs/
