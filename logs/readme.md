@@ -1,0 +1,1 @@
+Hier werden die Aktivitäten des Crawlers geloggt.

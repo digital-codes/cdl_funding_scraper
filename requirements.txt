@@ -1,0 +1,5 @@
+﻿# requirements.txt
+
+requests
+beautifulsoup4
+requests_cache
