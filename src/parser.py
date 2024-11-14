@@ -1,13 +1,13 @@
-﻿# src/parser.py
+# src/parser.py
 import lxml.html
 
 
-def parse_page(html_bytes: bytes, url: str) -> dict:
+def parse_program_page(html_bytes: bytes, url: str) -> dict:
     """
     Parst die Seite und extrahiert die benötigten Informationen.
     Fügt auch die Quell-URL zu den extrahierten Daten hinzu.
 
-    :param soup: BeautifulSoup-Objekt der Seite
+    :param html_bytes: bytes-Repräsentation des HTMLs
     :param url: Die URL der Seite, die geparst wird
     :return: Ein Dictionary mit den extrahierten Informationen und der Quell-URL
     """
