@@ -39,7 +39,7 @@ def parse_program_page(html_bytes: bytes, url: str) -> dict:
         content_node = tree.xpath("//main/div[@class='jumbotron']/following-sibling::div/div[@class='content']")[0]
         content = lxml.html.tostring(content_node, encoding="unicode")
         # quickfix : construct artificial articles object with "Kurzzusammenfassung" 
-        articles = [{"Kurzzusammenfassung": content}]
+        articles = {"Kurzzusammenfassung": content}
 
     details = {}
     dt_elements = tree.xpath("//dt")
@@ -64,6 +64,8 @@ def parse_program_page(html_bytes: bytes, url: str) -> dict:
     # derive IDs based on URL 
     # parts of url that are unique - everything after "Foerderprogramm"
     url_parts = url.partition("Foerderprogramm/") # if this does not exist in the url, it'll give back "" which will result in an empty ID
+    if url_parts[1] == "": # this means this is from the Archiv
+        url_parts = url.partition("Archiv/")
     foerderprogramm_url_id = url_parts[2].replace("/", "-").replace(".html", "").lower()
     foerderprogramm_hash_id = hashlib.md5(foerderprogramm_url_id.encode()).hexdigest()
 
