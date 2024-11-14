@@ -1,5 +1,6 @@
-# src/parser.py
+﻿# src/parser.py
 import lxml.html
+import hashlib
 
 
 def parse_program_page(html_bytes: bytes, url: str) -> dict:
@@ -13,6 +14,7 @@ def parse_program_page(html_bytes: bytes, url: str) -> dict:
     """
     tree = lxml.html.fromstring(html_bytes)
 
+    # titel des Förderprogramms
     title = tree.xpath("//h1[@class='title']")[0].text_content().strip()
 
     articles = {}
@@ -51,5 +53,11 @@ def parse_program_page(html_bytes: bytes, url: str) -> dict:
             details[key] = links
         else:
             details[key] = dd.text_content().strip()
+        
+    # derive IDs based on URL 
+    # parts of url that are unique - everything after "Foerderprogramm"
+    url_parts = url.partition("Foerderprogramm/") # if this does not exist in the url, it'll give back "" which will result in an empty ID
+    foerderprogramm_url_id = url_parts[2].replace("/", "-").replace(".html", "").lower()
+    foerderprogramm_hash_id = hashlib.md5(foerderprogramm_url_id.encode()).hexdigest()
 
-    return {"url": url, "title": title, "articles": articles, "details": details}
+    return {"id_hash": foerderprogramm_hash_id, "id_url": foerderprogramm_url_id, "url": url, "title": title, "articles": articles, "details": details}
