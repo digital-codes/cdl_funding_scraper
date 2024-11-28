@@ -1,1 +1,0 @@
-Hier werden Suchergebnisse zwischengespeichert.

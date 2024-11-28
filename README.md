@@ -62,6 +62,9 @@ funding_crawler/
    ```
 
 ## Tests
+
+Zum Beispiel:
+
 ```bash
 uv run pytest tests/test_spider.py -s -vv
 ```
