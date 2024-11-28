@@ -48,7 +48,7 @@ funding_crawler/
 
 2. **Installiere uv:**
   
-  Folge [diesen](https://docs.astral.sh/uv/getting-started/installation/) Anweisungen
+    Folge [diesen](https://docs.astral.sh/uv/getting-started/installation/) Anweisungen
 
 3. **Installiere python requiremens**
 
@@ -60,6 +60,12 @@ funding_crawler/
     ```bash
    uv run pre-commit install
    ```
+
+## Tests
+```bash
+uv run pytest tests/test_spider.py -s -vv
+```
+
  
 
 ## Funktionsweise
