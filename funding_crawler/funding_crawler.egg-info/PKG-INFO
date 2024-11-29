@@ -1,3 +1,23 @@
+Metadata-Version: 2.1
+Name: funding-crawler
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: bs4>=0.0.2
+Requires-Dist: lxml>=5.3.0
+Requires-Dist: requests>=2.32.3
+Requires-Dist: requests-cache>=1.2.1
+Requires-Dist: pytest>=8.3.3
+Requires-Dist: pre-commit>=4.0.1
+Requires-Dist: dlt[duckdb,postgres]>=1.4.0
+Requires-Dist: scrapy>=2.12.0
+Requires-Dist: funding_crawler
+Requires-Dist: pydantic>=2.10.2
+Requires-Dist: polars>=1.15.0
+Requires-Dist: boto3>=1.35.36
+Requires-Dist: sqlalchemy>=2.0.36
+
 # Funding Crawler
 
 ## Hinweis
@@ -119,9 +139,7 @@ Die Struktur des Projekts ermöglicht es, das Tool leicht zu erweitern oder anzu
 
 ## Lizenz
 
-This data was scraped from the website: foerderdatenbank.de. 
-The content is licensed under the Creative Commons Attribution-NoDerivatives 3.0 Germany License (CC BY-ND 3.0 DE) (https://creativecommons.org/licenses/by-nd/3.0/de/). 
-© 2024 www.bmwk.de
+MÜSSTE GGF. BEI VERÖFFENTLICHUNG NOCH GEKLÄRT WERDEN
 
 ## Kontakt
 

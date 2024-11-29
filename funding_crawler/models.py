@@ -23,17 +23,23 @@ class FundingProgramSchema(BaseModel):
     funding_type: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/KfW/erp-foerderkredit-gruendung-und-nachfolge.html
     )
+
     funding_area: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMBF/photonik-digitalisierte-automatisierte-produktion.html
     )
+
     funding_location: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMBF/morphologische-entwi-klimawand-nord-ostsee-86933.html
     )
+
     eligible_applicants: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMBF/transfer-inklusive-bildung.html
     )
+
     funding_body: Optional[str] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Land/Rheinland-Pfalz/staerkung-forschung-tech-entwicklung-innovation.html
     )
 
     further_links: Optional[List[str]] = None
+
+    checksum: str

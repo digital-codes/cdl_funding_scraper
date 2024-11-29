@@ -34,7 +34,11 @@ def test_pipeline():
 
     scraping_host.pipeline_runner.scraping_resource.add_limit(10)
 
-    scraping_host.run(write_disposition="replace", columns=FundingProgramSchema)
+    scraping_host.run(
+        incremental=dlt.sources.incremental("checksum_field"),
+        write_disposition="replace",
+        columns=FundingProgramSchema,
+    )
 
     with pipeline.sql_client() as c:
         with c.execute_query("SELECT * FROM testdataset.testdataset") as cur:

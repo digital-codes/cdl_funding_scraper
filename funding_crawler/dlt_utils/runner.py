@@ -110,7 +110,11 @@ class PipelineRunner(Runnable):
     option to host pipeline in a thread and communicate via the queue.
     """
 
-    def __init__(self, pipeline: dlt.Pipeline, queue: ScrapingQueue[T]) -> None:
+    def __init__(
+        self,
+        pipeline: dlt.Pipeline,
+        queue: ScrapingQueue[T],
+    ) -> None:
         self.pipeline = pipeline
         self.queue = queue
 

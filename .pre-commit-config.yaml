@@ -9,3 +9,11 @@ repos:
     # Run the formatter.
     - id: ruff-format
       types_or: [ python, pyi ]
+
+- repo: https://github.com/astral-sh/uv-pre-commit
+  # uv version.
+  rev: 0.5.5
+  hooks:
+    # Compile requirements
+    - id: pip-compile
+      args: [pyproject.toml, -o, requirements.txt]

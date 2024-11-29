@@ -11,14 +11,15 @@ dependencies = [
     "requests-cache>=1.2.1",
     "pytest>=8.3.3",
     "pre-commit>=4.0.1",
-    "dlt[duckdb,filesystem,parquet]>=1.4.0",
+    "dlt[duckdb,postgres]>=1.4.0",
     "scrapy>=2.12.0",
     "funding_crawler",
     "pydantic>=2.10.2",
     "polars>=1.15.0",
     "boto3>=1.35.36",
+    "sqlalchemy>=2.0.36",
+    "modal",
 ]
-
 
 [tool.uv.sources]
 funding_crawler = { path = "funding_crawler" }

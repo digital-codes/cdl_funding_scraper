@@ -1,6 +1,6 @@
 import hashlib
-
 from scrapy import Request, Spider
+from funding_crawler.helpers import compute_checksum
 
 translate_map = {
     "Kurzzusammenfassung": "description",
@@ -37,8 +37,10 @@ class FundingSpider(Spider):
     def parse_details(self, response):
         dct = {}
 
-        dct["title"] = response.xpath("//h1[@class='title']/text()").get()
-        dct["title"] = dct["title"].strip()
+        dct["title"] = "".join(
+            response.xpath("//h1[@class='title']//text()").getall()
+        ).strip()
+        dct["title"] = dct["title"] if dct["title"] else None
 
         tab_names = response.xpath(
             "/html/body/main/div[2]/div/div[1]/h2/span//text()"
@@ -154,5 +156,10 @@ class FundingSpider(Spider):
         dct["url"] = response.url
         dct["id_hash"] = foerderprogramm_hash_id
         dct["id_url"] = foerderprogramm_url_id
+
+        ignore_fields = ["url", "id_hash", "id_url"]
+        watch_fields = [x for x in list(dct.keys()) if x not in ignore_fields]
+
+        dct["checksum"] = compute_checksum(dct, watch_fields)
 
         yield dct
