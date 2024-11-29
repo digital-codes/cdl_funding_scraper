@@ -39,7 +39,7 @@ app = modal.App(name="cdl_awo_funding_crawler", image=image)
             ]
         ),
     ],
-    schedule=modal.Cron("0 2  *  * *"),
+    schedule=modal.Cron("0 2 */2 * *"),
     timeout=3600,
 )
 def crawl():
