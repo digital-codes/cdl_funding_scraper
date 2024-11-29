@@ -8,5 +8,13 @@ dlthub_telemetry = false
 start_urls = ["https://www.foerderdatenbank.de/SiteGlobals/FDB/Forms/Suche/Foederprogrammsuche_Formular.html?submit=Suchen&filterCategories=FundingProgram&sortOrder=dateOfIssue_dt+desc"] # please set me up!
 start_urls_file = []
 
-[destination.duckdb]
+[normalize]
+loader_file_format="parquet"
+
+[normalize.data_writer]
+disable_compression=true
+
+[destination.filesystem]
+bucket_url = "s3://foerderdatenbankdumpbackend" 
+
 

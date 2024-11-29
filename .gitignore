@@ -5,3 +5,6 @@ logs/*
 
 *.duckdb
 
+*.parquet
+
+.env
