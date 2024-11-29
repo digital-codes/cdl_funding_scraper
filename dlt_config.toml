@@ -1,11 +1,9 @@
-# put your configuration values here
-
 [runtime]
-log_level="WARNING"  # the system log level of dlt
+log_level="WARNING"  
 dlthub_telemetry = false
 
 [sources.scraping]
-start_urls = ["https://www.foerderdatenbank.de/SiteGlobals/FDB/Forms/Suche/Foederprogrammsuche_Formular.html?submit=Suchen&filterCategories=FundingProgram&sortOrder=dateOfIssue_dt+desc"] # please set me up!
+start_urls = ["https://www.foerderdatenbank.de/SiteGlobals/FDB/Forms/Suche/Foederprogrammsuche_Formular.html?submit=Suchen&filterCategories=FundingProgram&sortOrder=dateOfIssue_dt+desc"]
 start_urls_file = []
 
 
