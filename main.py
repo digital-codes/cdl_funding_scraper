@@ -5,10 +5,16 @@ from scrapy_settings import scrapy_settings
 from funding_crawler.models import FundingProgramSchema
 import polars as pl
 import boto3
+import zipfile
 from sqlalchemy import create_engine
 import os
 import modal
 
+license_content = """
+This data was scraped from the website: foerderdatenbank.de. 
+The content is licensed under the Creative Commons Attribution-NoDerivatives 3.0 Germany License (CC BY-ND 3.0 DE) (https://creativecommons.org/licenses/by-nd/3.0/de/). 
+© 2024 www.bmwk.de
+"""
 
 image = (
     modal.Image.debian_slim()
@@ -46,8 +52,10 @@ def crawl():
     dataset_name = "foerderdatenbankdumpbackend"
     bucket_name = "foerderdatenbankdump"
 
-    local_file = "db.parquet"
-    remote_file = "data/db.parquet"
+    local_license_file_name = "LICENSE"
+    local_zip_file_name = "data.zip"
+    local_data_file_name = "db.parquet"
+    remote_file_name = f"data/{local_zip_file_name}"
 
     postgres_conn_str = os.getenv("POSTGRES_CONN_STR")
     assert postgres_conn_str
@@ -66,7 +74,7 @@ def crawl():
         pipeline, FundingSpider, batch_size=50, scrapy_settings=scrapy_settings
     )
 
-    # scraping_host.pipeline_runner.scraping_resource.add_limit(2)
+    scraping_host.pipeline_runner.scraping_resource.add_limit(2)
 
     # https://dlthub.com/docs/general-usage/incremental-loading#scd2-strategy
     scraping_host.pipeline_runner.scraping_resource.apply_hints(merge_key="id_hash")
@@ -104,14 +112,24 @@ def crawl():
         aggregated_data
         ON {dataset_name}.id_hash = aggregated_data.agg_id
     """
-
     df = pl.read_database(
         query=query,
         connection=engine.connect(),  # PostgreSQL connection string
         execute_options={"parameters": []},  # You can add parameters if necessary
     )
+    df.write_parquet(local_data_file_name)
 
-    df.write_parquet(local_file)
+    # Step 1: Write the LICENSE content to a file
+    with open(local_license_file_name, "w") as f:
+        f.write(license_content)
+
+    with zipfile.ZipFile(local_zip_file_name, "w") as zipf:
+        zipf.write(
+            local_data_file_name, os.path.basename(local_data_file_name)
+        )  # Add the data file
+        zipf.write(
+            local_license_file_name, os.path.basename(local_license_file_name)
+        )  # Add the LICENSE file
 
     session = boto3.session.Session()
 
@@ -126,10 +144,12 @@ def crawl():
         ),
     )
 
-    print(f"Uploading {local_file} to {remote_file} in bucket {bucket_name}")
-
-    client.upload_file(
-        local_file, bucket_name, remote_file, ExtraArgs={"ACL": "public-read"}
+    print(
+        f"Uploading {local_zip_file_name} to {remote_file_name} in bucket {bucket_name}"
     )
 
-    os.remove(local_file)
+    client.upload_file(local_zip_file_name, bucket_name, remote_file_name)
+
+    # client.upload_file(
+    #     local_zip_file_name, bucket_name, remote_file_name, ExtraArgs={"ACL": "public-read"}
+    # )
