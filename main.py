@@ -114,22 +114,17 @@ def crawl():
     """
     df = pl.read_database(
         query=query,
-        connection=engine.connect(),  # PostgreSQL connection string
-        execute_options={"parameters": []},  # You can add parameters if necessary
+        connection=engine.connect(),
+        execute_options={"parameters": []},
     )
     df.write_parquet(local_data_file_name)
 
-    # Step 1: Write the LICENSE content to a file
     with open(local_license_file_name, "w") as f:
         f.write(license_content)
 
     with zipfile.ZipFile(local_zip_file_name, "w") as zipf:
-        zipf.write(
-            local_data_file_name, os.path.basename(local_data_file_name)
-        )  # Add the data file
-        zipf.write(
-            local_license_file_name, os.path.basename(local_license_file_name)
-        )  # Add the LICENSE file
+        zipf.write(local_data_file_name, os.path.basename(local_data_file_name))
+        zipf.write(local_license_file_name, os.path.basename(local_license_file_name))
 
     session = boto3.session.Session()
 
