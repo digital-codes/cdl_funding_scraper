@@ -121,11 +121,16 @@ Die Struktur des Projekts ermöglicht es, das Tool leicht zu erweitern oder anzu
 
 ### Code 
 
- [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+siehe `LICENSE-CODE`
 
 ### Daten 
 
+ [![License: CC BY-ND 3.0 DE](https://licensebuttons.net/l/by-nd/4.0/80x15.png)](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de)
+
+Inhalte von foerderdatenbank.de sind individuell lizensiert durch das Bundesministerium für Wirtschaft und Klimaschutz unter [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de). Der hier zur Verfügung gestellte Datensatz gibt die Informationen zu jedem einzelnen Förderprogramms in einem maschinenlesbaren Format wider. Lizenzinformationen zu jedem einzenlnen Förderprogramm inkl. URL können der Datensatz-Spalte `license_info` sowie der Datei `LICENSE-DATA` entnommen werden. 
 
 ## Kontakt
 
-Bei Fragen oder Vorschlägen können Sie gerne ein Issue im GitHub-Repository eröffnen oder direkt den Autor kontaktieren.
+Bei Fragen oder Vorschlägen können Sie gerne ein Issue im GitHub-Repository eröffnen.
