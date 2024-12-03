@@ -119,9 +119,12 @@ Die Struktur des Projekts ermöglicht es, das Tool leicht zu erweitern oder anzu
 
 ## Lizenz
 
-This data was scraped from the website: foerderdatenbank.de. 
-The content is licensed under the Creative Commons Attribution-NoDerivatives 3.0 Germany License (CC BY-ND 3.0 DE) (https://creativecommons.org/licenses/by-nd/3.0/de/). 
-© 2024 www.bmwk.de
+### Code 
+
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+### Daten 
+
 
 ## Kontakt
 
