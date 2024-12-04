@@ -91,10 +91,17 @@ You can run a spcific test with:
 uv run pytest tests/test_spider.py -s -vv
 ```
 
-## License
+### Code 
 
-This data was scraped from the website: foerderdatenbank.de. The content is licensed under the Creative Commons Attribution-NoDerivatives 3.0 Germany License (CC BY-ND 3.0 DE) (https://creativecommons.org/licenses/by-nd/3.0/de/).
-© 2024 www.bmwk.de
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+siehe `LICENSE-CODE`
+
+### Daten 
+
+ [![License: CC BY-ND 3.0 DE](https://licensebuttons.net/l/by-nd/4.0/80x15.png)](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de)
+
+Inhalte von foerderdatenbank.de sind individuell lizensiert durch das Bundesministerium für Wirtschaft und Klimaschutz unter [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de). Der hier zur Verfügung gestellte Datensatz gibt die Informationen zu jedem einzelnen Förderprogramms in einem maschinenlesbaren Format wider. Lizenzinformationen zu jedem einzenlnen Förderprogramm inkl. URL können der Datensatz-Spalte `license_info` sowie der Datei `LICENSE-DATA` entnommen werden. 
 
 ## Contact
 
