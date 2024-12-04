@@ -1,6 +1,8 @@
 import hashlib
 from scrapy import Request, Spider
-from funding_crawler.helpers import compute_checksum
+from datetime import datetime
+from funding_crawler.helpers import compute_checksum, gen_license
+
 
 translate_map = {
     "Kurzzusammenfassung": "description",
@@ -190,5 +192,8 @@ class FundingSpider(Spider):
         watch_fields = [x for x in list(dct.keys()) if x not in ignore_fields]
 
         dct["checksum"] = compute_checksum(dct, watch_fields)
+
+        date = datetime.today()
+        dct["license_info"] = gen_license(dct["title"], date, dct["url"])
 
         yield dct

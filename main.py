@@ -1,6 +1,7 @@
 import dlt
-from funding_crawler.scrapy_utils import FundingSpider
+from funding_crawler.spider import FundingSpider
 from funding_crawler.dlt_utils.helpers import create_pipeline_runner, cfg_provider
+from funding_crawler.helpers import gen_query
 from scrapy_settings import scrapy_settings
 from funding_crawler.models import FundingProgramSchema
 import polars as pl
@@ -11,9 +12,9 @@ import os
 import modal
 
 license_content = """
-This data was scraped from the website: foerderdatenbank.de. 
-The content is licensed under the Creative Commons Attribution-NoDerivatives 3.0 Germany License (CC BY-ND 3.0 DE) (https://creativecommons.org/licenses/by-nd/3.0/de/). 
-© 2024 www.bmwk.de
+Inhalte von foerderdatenbank.de sind individuell lizensiert durch das Bundesministerium für Wirtschaft und Klimaschutz unter CC BY-ND 3.0 DE. 
+Der hier zur Verfügung gestellte Datensatz gibt die Informationen zu jedem einzelnen Förderprogramms in einem maschinenlesbaren Format wider. 
+Lizenzinformationen zu jedem einzenlnen Förderprogramm inkl. URL können der Datensatz-Spalte license_info sowie der Datei LICENSE-DATA entnommen werden.
 """
 
 image = (
@@ -52,7 +53,7 @@ def crawl():
     dataset_name = "foerderdatenbankdumpbackend"
     bucket_name = "foerderdatenbankdump"
 
-    local_license_file_name = "LICENSE"
+    local_license_file_name = "LICENSE-DATA"
     local_zip_file_name = "data.zip"
     local_data_file_name = "db.parquet"
     remote_file_name = f"data/{local_zip_file_name}"
@@ -90,50 +91,12 @@ def crawl():
 
     columns = list(FundingProgramSchema.__annotations__.keys())
 
-    query = f"""
-
--- 1. Aggregate old data with previous update dates for each id_hash
-WITH aggregated_data_old AS (
-    SELECT
-        id_hash AS agg_id,
-        ARRAY_AGG(on_website_to) AS previous_update_dates
-    FROM
-        {dataset_name}
-    WHERE
-        on_website_to IS NOT NULL
-    GROUP BY
-        id_hash
-)
-
--- 2. Filter new data where on_website_to is NULL (should be one per id)
-WITH aggregated_data_new AS (
-    SELECT
-        {", ".join(columns)}
-    FROM
-        {dataset_name}
-    WHERE
-        on_website_to IS NULL
-)
-
--- 3. Combine new data with historical updates
-SELECT
-    {", ".join(columns)},
-    aggregated_data.previous_update_dates,
-    {dataset_name}.on_website_from AS last_updated
-FROM
-    aggregated_data_new
-LEFT JOIN
-    aggregated_data_old
-    ON aggregated_data_new.id_hash = aggregated_data_old.agg_id
-
-
-
-    """
     df = pl.read_database(
-        query=query,
+        query=gen_query(dataset_name, columns),
         connection=engine.connect(),
         execute_options={"parameters": []},
     )
+
     df.write_parquet(local_data_file_name)
 
     with open(local_license_file_name, "w") as f:

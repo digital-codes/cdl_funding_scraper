@@ -1,5 +1,5 @@
 from scrapy.http import HtmlResponse, Request
-from funding_crawler.scrapy_utils import FundingSpider
+from funding_crawler.spider import FundingSpider
 from pydantic import ValidationError
 from funding_crawler.models import FundingProgramSchema
 

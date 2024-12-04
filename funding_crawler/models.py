@@ -43,3 +43,5 @@ class FundingProgramSchema(BaseModel):
     further_links: Optional[List[str]] = None
 
     checksum: str
+
+    license_info: str
