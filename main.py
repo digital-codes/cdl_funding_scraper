@@ -91,26 +91,43 @@ def crawl():
     columns = list(FundingProgramSchema.__annotations__.keys())
 
     query = f"""
-    WITH aggregated_data AS (
-        SELECT
-            {dataset_name}.id_hash as agg_id,
-            ARRAY_AGG({dataset_name}.on_website_from) AS update_dates
-        FROM 
-            {dataset_name}.{dataset_name}
-        WHERE 
-            {dataset_name}.on_website_to IS NULL
-        GROUP BY 
-            {dataset_name}.id_hash
-    )
+
+-- 1. Aggregate old data with previous update dates for each id_hash
+WITH aggregated_data_old AS (
     SELECT
-        {", ".join(columns)},
-        aggregated_data.update_dates,
-        {dataset_name}.on_website_from AS last_updated
-    FROM 
-        {dataset_name}.{dataset_name}
-    JOIN 
-        aggregated_data
-        ON {dataset_name}.id_hash = aggregated_data.agg_id
+        id_hash AS agg_id,
+        ARRAY_AGG(on_website_to) AS previous_update_dates
+    FROM
+        {dataset_name}
+    WHERE
+        on_website_to IS NOT NULL
+    GROUP BY
+        id_hash
+)
+
+-- 2. Filter new data where on_website_to is NULL (should be one per id)
+WITH aggregated_data_new AS (
+    SELECT
+        {", ".join(columns)}
+    FROM
+        {dataset_name}
+    WHERE
+        on_website_to IS NULL
+)
+
+-- 3. Combine new data with historical updates
+SELECT
+    {", ".join(columns)},
+    aggregated_data.previous_update_dates,
+    {dataset_name}.on_website_from AS last_updated
+FROM
+    aggregated_data_new
+LEFT JOIN
+    aggregated_data_old
+    ON aggregated_data_new.id_hash = aggregated_data_old.agg_id
+
+
+
     """
     df = pl.read_database(
         query=query,
