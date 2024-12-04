@@ -81,6 +81,11 @@ The following describes the structure of the relevant folders and files.
      export POSTGRES_CONN_STR="postgresql://....."
     ##### Make sure this does not land in your shell history
     ```
+## Redeploy pipeline
+Requires the env vars to be set described above:
+```
+uv run modal deploy main.py
+```
 
 
 ## Tests
