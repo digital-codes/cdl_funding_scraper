@@ -1,6 +1,7 @@
 import dlt
-from funding_crawler.scrapy_utils import FundingSpider
+from funding_crawler.spider import FundingSpider
 from funding_crawler.dlt_utils.helpers import create_pipeline_runner, cfg_provider
+from funding_crawler.helpers import gen_query
 from scrapy_settings import scrapy_settings
 from funding_crawler.models import FundingProgramSchema
 import polars as pl
@@ -11,9 +12,9 @@ import os
 import modal
 
 license_content = """
-This data was scraped from the website: foerderdatenbank.de. 
-The content is licensed under the Creative Commons Attribution-NoDerivatives 3.0 Germany License (CC BY-ND 3.0 DE) (https://creativecommons.org/licenses/by-nd/3.0/de/). 
-© 2024 www.bmwk.de
+Inhalte von foerderdatenbank.de sind individuell lizensiert durch das Bundesministerium für Wirtschaft und Klimaschutz unter CC BY-ND 3.0 DE. 
+Der hier zur Verfügung gestellte Datensatz gibt die Informationen zu jedem einzelnen Förderprogramms in einem maschinenlesbaren Format wider. 
+Lizenzinformationen zu jedem einzenlnen Förderprogramm inkl. URL können der Datensatz-Spalte license_info sowie der Datei LICENSE-DATA entnommen werden.
 """
 
 image = (
@@ -52,7 +53,7 @@ def crawl():
     dataset_name = "foerderdatenbankdumpbackend"
     bucket_name = "foerderdatenbankdump"
 
-    local_license_file_name = "LICENSE"
+    local_license_file_name = "LICENSE-DATA"
     local_zip_file_name = "data.zip"
     local_data_file_name = "db.parquet"
     remote_file_name = f"data/{local_zip_file_name}"
@@ -90,33 +91,12 @@ def crawl():
 
     columns = list(FundingProgramSchema.__annotations__.keys())
 
-    query = f"""
-    WITH aggregated_data AS (
-        SELECT
-            {dataset_name}.id_hash as agg_id,
-            ARRAY_AGG({dataset_name}.on_website_from) AS update_dates
-        FROM 
-            {dataset_name}.{dataset_name}
-        WHERE 
-            {dataset_name}.on_website_to IS NULL
-        GROUP BY 
-            {dataset_name}.id_hash
-    )
-    SELECT
-        {", ".join(columns)},
-        aggregated_data.update_dates,
-        {dataset_name}.on_website_from AS last_updated
-    FROM 
-        {dataset_name}.{dataset_name}
-    JOIN 
-        aggregated_data
-        ON {dataset_name}.id_hash = aggregated_data.agg_id
-    """
     df = pl.read_database(
-        query=query,
+        query=gen_query(dataset_name, columns),
         connection=engine.connect(),
         execute_options={"parameters": []},
     )
+
     df.write_parquet(local_data_file_name)
 
     with open(local_license_file_name, "w") as f:

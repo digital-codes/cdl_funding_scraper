@@ -1,123 +1,95 @@
 # Funding Crawler
 
-## Hinweis
+The `Funding Crawler` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWK. The results are stored in a `.parquet` file, which can be downloaded via a separate link:
 
-Diese readme.md wurde mit Hilfe einer generativen KI auf Grundlage des Codes erstellt. Sie ist möglicherweise noch nicht vollständig bzw. nicht vollständig korrekt.
+**[Data.zip](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/data.zip)**
 
-## Überblick
+## Data Structure Description
 
-Das `Funding Crawler`-Projekt ist ein Python-basiertes Web-Crawling-Tool, das entwickelt wurde, um Förderprogramme von der Website der Förderdatenbank das BMWK zu extrahieren. Das Tool sammelt systematisch Links zu den Förderprogrammen von den Suchergebnisseiten, ruft die verlinkten Seiten ab und extrahiert die relevanten Inhalte wie Titel, Beschreibungen und detaillierte Informationen zu den Förderprogrammen. Die Ergebnisse werden in einer strukturierten JSON-Datei gespeichert.
+The columns of the linked dataset correspond to the standardized fields of the detail pages on the scraped website and are defined in the `funding_crawler/models.py` file, but without the checksum and including the two fields `last_updated` and `previous_update_dates`.
 
-## Projektstruktur
+## Functionality
 
-Das Projekt ist in verschiedene Module und Verzeichnisse unterteilt, um die Wartbarkeit und Erweiterbarkeit zu gewährleisten:
+- In this project, [Scrapy](https://scrapy.org/) serves as the input for [dlt](https://dlthub.com/). A Scrapy spider iterates over all pages of the funding program overview and extracts data from the respective detail page of each funding program.
 
-```plaintext
-funding_crawler/
-│
-├── config/
-│   ├── __init__.py             # Kennzeichnet das config-Verzeichnis als Python-Paket
-│   └── settings.py             # Zentrale Konfigurationsdatei
-│
-├── data/
-│   ├── cache/                  # Hier wird der sqlite-basierte Cache für die geladenen HTML-Seiten angelegt
-│   └── output.json             # Ausgabedatei im JSON-Format
-│
-├── logs/
-│   └── crawler.log             # Log-Datei für das Crawling
-│
-├── src/
-│   ├── __init__.py             # Initialisiert das src-Verzeichnis als Python-Paket
-│   ├── crawler.py              # Haupt-Crawling-Logik
-│   ├── parser.py               # Funktionen zum Parsen und Extrahieren von Daten aus HTML
-│   ├── cache.py                # Funktionen zur Cache-Verwaltung
-│   ├── utils.py                # Hilfsfunktionen (z.B. für Logging, Exception-Handling)
-│   └── exporter.py             # Funktionen zum Exportieren der Daten ins JSON-Format
-│
-└── main.py                     # Hauptskript zum Starten des Crawlings
+- Global settings for scraping, such as scraping frequency and parallelism, can be found and adjusted in the `scrapy_settings.py` file.
+
+- To identify funding programs over the long term, a hash is calculated from the URL.
+
+- Since the website does not provide information on the update or creation date, the [scd2 strategy](https://dlthub.com/docs/general-usage/incremental-loading#scd2-strategy) was chosen for updating the dataset.
+    - All funding programs are always scraped.
+    - A checksum is calculated from certain fields of a program, which is compared with already existing programs matched by an ID. In case of a discrepancy, the data point is updated, and a value is added to a column that records update dates.
+    - New funding programs are added to the dataset.
+    - Funding programs that are no longer on the website are retained in the dataset, but the date of their removal, or the last scraping date, is recorded.
+
+- The output from DLT is stored in a serverless Postgres database ([Neon](https://neon.tech/)) and transformed using a query (the DLT output contains one entry per update), so that in the end, there is one row per program.
+
+- The pipeline is orchestrated and operated with [Modal](https://modal.com/). It runs every two days at 2 AM (UTC).
+
+- The Output is saved in a S3 bucket, that can be downloaded and loaded as demonstrated in `load_example.py`.
+
+
+## Project Structure
+
+The following describes the structure of the relevant folders and files.
+
+```bash
+├── dlt_config.toml            # Configuration file for the DLT pipeline
+├── scrapy_settings.py         # Configuration settings for Scrapy
+├── funding_crawler            # Main project folder for the funding crawler Python code
+│   ├── dlt_utils              # Utility module containing code for DLT to use Scrapy as a resource
+│   ├── helpers.py             # Helper functions for the core logic of the crawler
+│   ├── models.py              # Data models used for validation
+│   ├── spider.py              # Contains the scraping logic in the form of a Scrapy spider
+├── main.py                    # Entry point of the pipeline
+├── pyproject.toml             # uv project configuration
+├── tests                      # Test folder containing unit and integration tests
+│   ├── test_dlt               # Tests related to the DLT pipeline
+│   └── test_scrapy            # Tests related to Scrapy spiders
 ```
 
-## Installationsanweisungen
+## Development Setup Instructions
 
-1. **Klonen des Repositories:**
+1. **Clone the Repository:**
 
    ```bash
    git clone https://github.com/awodigital/funding_crawler.git
    cd funding_crawler
    ```
 
-2. **Installiere uv:**
-  
-    Folge [diesen](https://docs.astral.sh/uv/getting-started/installation/) Anweisungen
+2. **Install uv:**
 
-3. **Installiere python requiremens**
+   Follow [these instructions](https://docs.astral.sh/uv/getting-started/installation/).
 
-    ```bash
+3. **Install Python Requirements:**
+
+   ```bash
    uv sync
    ```
-4. **Installiere pre-commit**
 
-    ```bash
+4. **Set Up Pre-commit:**
+
+   ```bash
    uv run pre-commit install
    ```
 
-## Tests
+5. To access modal, the serverless database and DigitalOcean, where the final dataset is uploaded to, either ask a CorrelAid admin for the credentials or use your own infrastructure by exporting the following environment variabels:
+    ```
+     export DESTINATION__FILESYSTEM__CREDENTIALS__AWS_ACCESS_KEY_ID=""
+     export DESTINATION__FILESYSTEM__CREDENTIALS__AWS_SECRET_ACCESS_KEY=""
+     export DESTINATION__FILESYSTEM__CREDENTIALS__ENDPOINT_URL=""
+     export POSTGRES_CONN_STR="postgresql://....."
+    ##### Make sure this does not land in your shell history
+    ```
 
-Zum Beispiel:
+
+## Tests
+This repository contains a limited number of tests.
+You can run a spcific test with:
 
 ```bash
 uv run pytest tests/test_spider.py -s -vv
 ```
-
- 
-
-## Funktionsweise
-
-Das Tool arbeitet in zwei Hauptphasen:
-
-### Phase 1: Extrahieren der Links von den Seiten mit den Suchergebnissen
-
-- Das Skript beginnt mit dem Abrufen der ersten Suchergebnisseite, die in der Konfiguration angegeben ist.
-- Es iteriert durch die Seiten der Suchergebnisse und sammelt alle Links, die zu den detaillierten Förderprogrammen führen.
-- Wenn eine Seite aus dem Cache geladen wird, entfällt die Wartezeit. Ansonsten wartet das Skript 30 Sekunden zwischen den Seitenabrufen, wie in der `robots.txt` vorgeschrieben.
-
-### Phase 2: Abrufen und Analysieren der verlinkten Seiten
-
-- Nach dem Sammeln der Links zu den Förderprogrammen ruft das Skript die verlinkten Seiten ab und analysiert sie.
-- Es extrahiert den Titel (`h1`-Tag), den Inhalt (`div` mit Klasse `content`) und andere relevante Informationen, die in einer Tabelle dargestellt werden.
-- Die extrahierten Daten werden in einer strukturierten JSON-Datei gespeichert.
-
-## Wichtige Module
-
-- **`crawler.py`:** Implementiert die Hauptlogik für beide Phasen des Crawlings.
-- **`parser.py`:** Enthält die Funktionen zum Parsen der HTML-Seiten und zum Extrahieren der benötigten Daten.
-- **`cache.py`:** Verwalten des HTTP-Caches, um unnötige Anfragen zu vermeiden.
-- **`exporter.py`:** Speichern der gesammelten Daten im JSON-Format.
-- **`settings.py`:** Zentrale Konfiguration des Projekts.
-
-## Ausführung des Crawlers
-
-Um das Tool auszuführen, verwenden Sie einfach den folgenden Befehl:
-
-```bash
-python main.py
-```
-
-Das Skript startet das Crawling gemäß den in der Konfigurationsdatei festgelegten Parametern und speichert die extrahierten Daten in der Datei `data/output.json`.
-
-## Logging
-
-Das Tool verwendet ein einfaches Logging-System, um Informationen über den Fortschritt des Crawlings aufzuzeichnen. Die Logs werden in der Datei `logs/crawler.log` gespeichert. Es wird protokolliert, welche Seiten abgerufen wurden, ob sie aus dem Cache geladen wurden und ob Fehler aufgetreten sind.
-
-## Anpassungen
-
-Die Struktur des Projekts ermöglicht es, das Tool leicht zu erweitern oder anzupassen:
-
-- **Weitere Seitenanalyse:** Neue Analysefunktionen können in `parser.py` hinzugefügt werden.
-- **Andere Exportformate:** Die `exporter.py` kann erweitert werden, um die Daten in anderen Formaten wie CSV oder SQL zu speichern.
-- **Erweiterte Konfiguration:** Zusätzliche Konfigurationsparameter können in `settings.py` definiert werden.
-
-## Lizenz
 
 ### Code 
 
@@ -131,6 +103,6 @@ siehe `LICENSE-CODE`
 
 Inhalte von foerderdatenbank.de sind individuell lizensiert durch das Bundesministerium für Wirtschaft und Klimaschutz unter [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de). Der hier zur Verfügung gestellte Datensatz gibt die Informationen zu jedem einzelnen Förderprogramms in einem maschinenlesbaren Format wider. Lizenzinformationen zu jedem einzenlnen Förderprogramm inkl. URL können der Datensatz-Spalte `license_info` sowie der Datei `LICENSE-DATA` entnommen werden. 
 
-## Kontakt
+## Contact
 
-Bei Fragen oder Vorschlägen können Sie gerne ein Issue im GitHub-Repository eröffnen.
+For any questions or suggestions, feel free to open an issue in the GitHub repository.

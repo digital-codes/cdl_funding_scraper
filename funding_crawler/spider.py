@@ -1,6 +1,8 @@
 import hashlib
 from scrapy import Request, Spider
-from funding_crawler.helpers import compute_checksum
+from datetime import datetime
+from funding_crawler.helpers import compute_checksum, gen_license
+
 
 translate_map = {
     "Kurzzusammenfassung": "description",
@@ -17,9 +19,27 @@ translate_map = {
 
 
 class FundingSpider(Spider):
+    """
+    A Scrapy spider for extracting funding program details from a website.
+    The spider crawls through pages of funding programs, extracts program details,
+    and navigates through pagination.
+    """
+
     name = "funding"
 
     def parse(self, response):
+        """
+        Parse the response from the main page listing funding programs.
+
+        Extracts URLs for individual funding program details and follows them
+        for further parsing. Also handles pagination to fetch additional program listings.
+
+        Args:
+            response (Response): The HTTP response object for the current page.
+
+        Yields:
+            Request: Requests for detailed program pages and the next pagination page.
+        """
         urls = response.css(
             'div.card--fundingprogram > p.card--title > a::attr("href")'
         ).extract()
@@ -35,6 +55,18 @@ class FundingSpider(Spider):
             yield response.follow(next_page, self.parse)
 
     def parse_details(self, response):
+        """
+        Parse the response from a funding program detail page.
+
+        Extracts details such as title, description, funding information, contact details,
+        and additional links. Computes unique identifiers and a checksum for the data.
+
+        Args:
+            response (Response): The HTTP response object for the detail page.
+
+        Yields:
+            dict: A dictionary containing the extracted program details.
+        """
         dct = {}
 
         dct["title"] = "".join(
@@ -140,7 +172,6 @@ class FundingSpider(Spider):
                 value = dd.xpath("text()").get()
                 dct[key] = value.strip() if value else None
 
-        # Generate IDs based on URL
         url_parts = response.url.partition("Foerderprogramm/")
 
         if url_parts[1] == "":
@@ -161,5 +192,8 @@ class FundingSpider(Spider):
         watch_fields = [x for x in list(dct.keys()) if x not in ignore_fields]
 
         dct["checksum"] = compute_checksum(dct, watch_fields)
+
+        date = datetime.today()
+        dct["license_info"] = gen_license(dct["title"], date, dct["url"])
 
         yield dct

@@ -19,6 +19,7 @@ dependencies = [
     "boto3>=1.35.36",
     "sqlalchemy>=2.0.36",
     "modal",
+    "pyarrow>=18.1.0",
 ]
 
 [tool.uv.sources]

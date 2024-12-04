@@ -1,20 +1,18 @@
-from funding_crawler.scrapy_utils import FundingSpider
+from funding_crawler.spider import FundingSpider
 import dlt
 import os
 import pytest
 from funding_crawler.dlt_utils.helpers import create_pipeline_runner, cfg_provider
 from funding_crawler.models import FundingProgramSchema
 import warnings
-# Disable the specific deprecation warning
 
 
 @pytest.mark.filterwarnings(
     "error::pytest.PytestUnhandledThreadExceptionWarning"
 )  # validation is not catched otherwise
 def test_pipeline():
-    warnings.filterwarnings("ignore", category=DeprecationWarning)
-
     dlt.config.register_provider(cfg_provider)
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
 
     pipeline = dlt.pipeline(
         pipeline_name="testpipeline", destination="duckdb", dataset_name="testdataset"
@@ -35,15 +33,16 @@ def test_pipeline():
     scraping_host.pipeline_runner.scraping_resource.add_limit(10)
 
     scraping_host.run(
-        incremental=dlt.sources.incremental("checksum_field"),
-        write_disposition="replace",
         columns=FundingProgramSchema,
+        write_disposition="replace",
     )
 
     with pipeline.sql_client() as c:
-        with c.execute_query("SELECT * FROM testdataset.testdataset") as cur:
+        with c.execute_query("SELECT * FROM testdataset") as cur:
             rows = list(cur.fetchall())
             print(len(rows))
             assert len(rows) > 0
 
     os.remove("testpipeline.duckdb")
+
+    del pipeline, scraping_host
