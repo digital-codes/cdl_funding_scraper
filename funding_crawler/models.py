@@ -12,7 +12,9 @@ class FundingProgramSchema(BaseModel):
     more_info: Optional[str] = None
     legal_basis: Optional[str] = None
 
-    contact_info_institution: str
+    contact_info_institution: Optional[str] = (
+        None  # contact info missing completely: https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMWi/dns-zukunftsfaehige-mobilitaet.html
+    )
     contact_info_street: Optional[str] = None
     contact_info_city: Optional[str] = None
     contact_info_fax: Optional[str] = None

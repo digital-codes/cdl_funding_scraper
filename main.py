@@ -75,10 +75,11 @@ def crawl():
         pipeline, FundingSpider, batch_size=50, scrapy_settings=scrapy_settings
     )
 
-    scraping_host.pipeline_runner.scraping_resource.add_limit(2)
+    # scraping_host.pipeline_runner.scraping_resource.add_limit(2)
 
     # https://dlthub.com/docs/general-usage/incremental-loading#scd2-strategy
     scraping_host.pipeline_runner.scraping_resource.apply_hints(merge_key="id_hash")
+
     scraping_host.run(
         columns=FundingProgramSchema,
         write_disposition={

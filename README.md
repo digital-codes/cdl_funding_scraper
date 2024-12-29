@@ -79,7 +79,7 @@ The following describes the structure of the relevant folders and files.
      export DESTINATION__FILESYSTEM__CREDENTIALS__AWS_SECRET_ACCESS_KEY=""
      export DESTINATION__FILESYSTEM__CREDENTIALS__ENDPOINT_URL=""
      export POSTGRES_CONN_STR="postgresql://....."
-    ##### Make sure this does not land in your shell history
+    ##### Make sure this does not end up in your shell history
     ```
 ## Redeploy pipeline
 Requires the env vars to be set described above:

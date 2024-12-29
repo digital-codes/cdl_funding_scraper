@@ -6,7 +6,3 @@ dlthub_telemetry = false
 start_urls = ["https://www.foerderdatenbank.de/SiteGlobals/FDB/Forms/Suche/Foederprogrammsuche_Formular.html?submit=Suchen&filterCategories=FundingProgram&sortOrder=dateOfIssue_dt+desc"]
 start_urls_file = []
 
-
-
-
-

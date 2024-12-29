@@ -30,7 +30,7 @@ def test_pipeline():
         pipeline, FundingSpider, batch_size=10, scrapy_settings=scrapy_settings
     )
 
-    scraping_host.pipeline_runner.scraping_resource.add_limit(10)
+    scraping_host.pipeline_runner.scraping_resource.add_limit(5)
 
     scraping_host.run(
         columns=FundingProgramSchema,

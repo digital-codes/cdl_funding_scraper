@@ -194,6 +194,8 @@ protobuf==5.29.0
     # via modal
 psycopg2-binary==2.9.10
     # via dlt
+pyarrow==18.1.0
+    # via funding-crawler (pyproject.toml)
 pyasn1==0.6.1
     # via
     #   pyasn1-modules
