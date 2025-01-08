@@ -1,5 +1,5 @@
 [runtime]
-log_level="WARNING"  
+log_level="INFO"  
 dlthub_telemetry = false
 
 [sources.scraping]

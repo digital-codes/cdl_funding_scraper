@@ -30,9 +30,9 @@ def test_scd2_query():
     }
 
     scraping_host = create_pipeline_runner(
-        pipeline, FundingSpider, batch_size=10, scrapy_settings=scrapy_settings
+        pipeline, FundingSpider, batch_size=50, scrapy_settings=scrapy_settings
     )
-    scraping_host.pipeline_runner.scraping_resource.add_limit(10)
+    scraping_host.pipeline_runner.scraping_resource.add_limit(2)
 
     scraping_host.pipeline_runner.scraping_resource.apply_hints(merge_key="id_hash")
     scraping_host.run(
@@ -60,6 +60,8 @@ def test_scd2_query():
 
     assert first_row["id_hash"] is not None
     assert first_row["last_updated"] is not None
+
+    print(first_row["id_hash"])
 
     assert isinstance(first_row["previous_update_dates"], pl.Series)
 

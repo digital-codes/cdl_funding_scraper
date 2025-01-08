@@ -66,7 +66,7 @@ def crawl():
     dlt.config.register_provider(cfg_provider)
 
     pipeline = dlt.pipeline(
-        pipeline_name="funding_crawler",
+        pipeline_name="fundingcrawler",
         destination=dlt.destinations.postgres(postgres_conn_str),
         dataset_name=dataset_name,
     )
@@ -75,11 +75,8 @@ def crawl():
         pipeline, FundingSpider, batch_size=50, scrapy_settings=scrapy_settings
     )
 
-    # scraping_host.pipeline_runner.scraping_resource.add_limit(2)
-
     # https://dlthub.com/docs/general-usage/incremental-loading#scd2-strategy
     scraping_host.pipeline_runner.scraping_resource.apply_hints(merge_key="id_hash")
-
     scraping_host.run(
         columns=FundingProgramSchema,
         write_disposition={
@@ -93,7 +90,7 @@ def crawl():
     columns = list(FundingProgramSchema.__annotations__.keys())
 
     df = pl.read_database(
-        query=gen_query(dataset_name, columns),
+        query=gen_query(f"{dataset_name}.{dataset_name}", columns),
         connection=engine.connect(),
         execute_options={"parameters": []},
     )
