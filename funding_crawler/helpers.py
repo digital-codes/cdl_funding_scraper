@@ -1,5 +1,8 @@
 import hashlib
 import json
+from pydantic import BaseModel
+import polars as pl
+from typing import Union, Dict, Any
 
 
 def compute_checksum(data: dict, fields: list[str]) -> str:
@@ -60,3 +63,22 @@ def gen_license(title, scrape_date, url):
 {title} von Bundesministerium für Wirtschaft und Klimaschutz, lizensiert unter CC BY-ND 3.0 DE (https://creativecommons.org/licenses/by-nd/3.0/de/deed.de), zuletzt abgerufen am {scrape_date} unter {url}
 """
     return temp
+
+
+def pydantic_to_polars_schema(model: type[BaseModel]) -> Dict[str, Any]:
+    """Convert Pydantic model fields to Polars schema overrides."""
+    schema_overrides = {}
+    for field_name, field in model.__annotations__.items():
+        # Get the base type (handling Optional/List wrappers)
+        base_type = field
+        if hasattr(field, "__origin__"):
+            if field.__origin__ is Union:  # handles Optional
+                base_type = field.__args__[0]
+            elif field.__origin__ is list:  # handles List
+                continue  # Let Polars handle list types automatically
+
+        # Map Python/Pydantic types to Polars types
+        if base_type is str:
+            schema_overrides[field_name] = pl.Utf8
+
+    return schema_overrides

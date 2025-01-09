@@ -1,7 +1,7 @@
 import dlt
 from funding_crawler.spider import FundingSpider
 from funding_crawler.dlt_utils.helpers import create_pipeline_runner, cfg_provider
-from funding_crawler.helpers import gen_query
+from funding_crawler.helpers import gen_query, pydantic_to_polars_schema
 from scrapy_settings import scrapy_settings
 from funding_crawler.models import FundingProgramSchema
 import polars as pl
@@ -93,6 +93,9 @@ def crawl():
         query=gen_query(f"{dataset_name}.{dataset_name}", columns),
         connection=engine.connect(),
         execute_options={"parameters": []},
+        schema_overrides=pydantic_to_polars_schema(FundingProgramSchema),
+        infer_schema_length=None,
+        batch_size=10000,
     )
 
     df.write_parquet(local_data_file_name)
