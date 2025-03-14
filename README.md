@@ -100,13 +100,11 @@ uv run pytest tests/test_spider.py -s -vv
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-siehe `LICENSE-CODE`
+see `LICENSE-CODE`
 
 ### Daten 
 
- [![License: CC BY-ND 3.0 DE](https://licensebuttons.net/l/by-nd/4.0/80x15.png)](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de)
-
-Inhalte von foerderdatenbank.de sind individuell lizensiert durch das Bundesministerium für Wirtschaft und Klimaschutz unter [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de). Der hier zur Verfügung gestellte Datensatz gibt die Informationen zu jedem einzelnen Förderprogramms in einem maschinenlesbaren Format wider. Lizenzinformationen zu jedem einzenlnen Förderprogramm inkl. URL können der Datensatz-Spalte `license_info` sowie der Datei `LICENSE-DATA` entnommen werden. 
+Wir verweisen hier auf die [das Impressum von foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) des Bundesministeriums für Wirtschaft und Klimaschutz, welches als Lizenz für die Texte der Website [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) angibt. Der hier zur Verfügung gestellte Datensatz überträgt die verfügbaren Informationen zu jedem Förderprogramm in ein maschinenlesbares Format. Es werden keine urheberrechtlich relevanten Veränderungen an Texten oder Inhalten vorgenommen. 
 
 ## Contact
 
