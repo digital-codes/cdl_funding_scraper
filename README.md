@@ -102,9 +102,9 @@ uv run pytest tests/test_spider.py -s -vv
 
 see `LICENSE-CODE`
 
-### Daten 
+### Data 
 
-Wir verweisen hier auf die [das Impressum von foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) des Bundesministeriums für Wirtschaft und Klimaschutz, welches als Lizenz für die Texte der Website [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) angibt. Der hier zur Verfügung gestellte Datensatz überträgt die verfügbaren Informationen zu jedem Förderprogramm in ein maschinenlesbares Format. Es werden keine urheberrechtlich relevanten Veränderungen an Texten oder Inhalten vorgenommen. 
+We refer to the [imprint of foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) of the Federal Ministry for Economic Affairs and Climate Action which indicates [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) as the license for all texts of the website. The dataset provided in this repository transfers information on each funding program into a machine-readable format. No copyright-relevant changes are made to texts or content.
 
 ## Contact
 
