@@ -19,29 +19,9 @@ def compute_checksum(data: dict, fields: list[str]) -> str:
 
 
 def gen_query(dataset_name, columns):
-    """
-    Generates a SQL query to aggregate historical data and combine it with new data.
-
-    The query performs the following steps:
-    1. Aggregates historical data (`on_website_to` values) for each `id_hash` into an array, grouped by `id_hash`.
-    2. Filters new data where `on_website_to` is NULL (indicating the most recent entry for each `id_hash`).
-    3. Combines the new data with the historical data, ensuring all records (both new and old) are included.
-
-    Query Details:
-    - The `aggregated_data_old` Common Table Expression (CTE) collects all historical `on_website_to` dates for each `id_hash` into an array.
-    - The `aggregated_data_new` CTE selects new data where `on_website_to` is NULL, ensuring only one record per `id_hash`.
-    - The final SELECT statement combines the old and new data using a FULL OUTER JOIN on `id_hash`.
-    - The resulting query includes:
-        - `id_hash`: The unique identifier for each record.
-        - Columns from the `columns` list (excluding `id_hash`).
-        - `previous_update_dates`: An array of historical `on_website_to` values for each `id_hash`.
-        - `last_updated`: The `on_website_from` value from the new data.
-        - `deleted`: A boolean flag indicating whether the record is marked as deleted (i.e., `on_website_from` is not NULL).
-
-    """
     query = f"""
-    -- 1. Aggregate old data with previous update dates for each id_hash
-    WITH aggregated_data_old AS (
+    -- 1. Aggregate retired data with previous update dates for each id_hash
+    WITH aggregated_data_retired AS (
         SELECT
             id_hash AS agg_id,
             ARRAY_AGG(on_website_to) AS previous_update_dates
@@ -53,10 +33,11 @@ def gen_query(dataset_name, columns):
             id_hash
     ),
 
-    -- 2. Filter new data where on_website_to is NULL (should be one per id)
-    aggregated_data_new AS (
+    -- 2. Filter new or unchanged data where on_website_to is NULL (should be one per id)
+    data_new AS (
         SELECT
-            {", ".join(columns)},
+            id_hash AS new_id_hash,
+            {", ".join([col for col in columns if col != "id_hash"])},
             on_website_from
         FROM
             {dataset_name}
@@ -66,19 +47,19 @@ def gen_query(dataset_name, columns):
 
     -- 3. Combine new data with historical updates (include all old data as well)
     SELECT
-        COALESCE(aggregated_data_new.id_hash, aggregated_data_old.agg_id) AS id_hash,
-        {", ".join([f"aggregated_data_new.{col}" for col in columns if col != "id_hash"])},
-        aggregated_data_old.previous_update_dates,
-        aggregated_data_new.on_website_from AS last_updated,
+        COALESCE(data_new.new_id_hash, aggregated_data_retired.agg_id) AS id_hash,
+        {", ".join([f"data_new.{col}" for col in columns if col != "id_hash"])},
+        aggregated_data_retired.previous_update_dates,
+        data_new.on_website_from AS last_updated,
         CASE 
-            WHEN aggregated_data_new.on_website_from IS NOT NULL THEN TRUE
+            WHEN aggregated_data_retired.agg_id IS NOT NULL AND data_new.new_id_hash IS NULL THEN TRUE
             ELSE FALSE
         END AS deleted
     FROM
-        aggregated_data_new
+        data_new
     FULL OUTER JOIN
-        aggregated_data_old
-        ON aggregated_data_new.id_hash = aggregated_data_old.agg_id
+        aggregated_data_retired
+        ON data_new.new_id_hash = aggregated_data_retired.agg_id
     """
     return query
 

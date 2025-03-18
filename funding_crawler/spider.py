@@ -175,7 +175,9 @@ class FundingSpider(Spider):
         url_parts = response.url.partition("Foerderprogramm/")
 
         if url_parts[1] == "":
-            url_parts = response.url.partition("Archiv/")
+            url_parts = response.url.partition(
+                "Archiv/"
+            )  # e.g. 'https://www.foerderdatenbank.de/FDB/Content/DE/Archiv/innovativer-schiffbau-sichert-arbeitsplaetze.html'
 
         foerderprogramm_url_id = (
             url_parts[2].replace("/", "-").replace(".html", "").lower()
