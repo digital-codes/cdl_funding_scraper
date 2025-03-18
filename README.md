@@ -4,9 +4,12 @@ The `Funding Crawler` project is a Python-based web crawling tool and pipeline d
 
 **[Link to data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/data.zip)**
 
+- The Crawler runs approximately every second day.
+- The data includes programs currently available on the website, but also deleted programs.
+
 ## Data Structure Description
 
-The columns of the linked dataset correspond to the standardized fields of the detail pages on the scraped website and are defined in the `funding_crawler/models.py` file, but without the checksum and including the two fields `last_updated` and `previous_update_dates`.
+The columns of the linked dataset correspond to the standardized fields of the detail pages on the scraped website and are defined in the `funding_crawler/models.py` file, but without the checksum and including three additional meta fields `last_updated`, `previous_update_dates` and `offline` (dates correspond to the date of the pipeline run when changes were detected).
 
 ## Functionality
 
@@ -86,7 +89,6 @@ Requires the env vars to be set described above:
 ```
 uv run modal deploy main.py
 ```
-
 
 ## Tests
 This repository contains a limited number of tests.
