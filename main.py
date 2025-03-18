@@ -124,8 +124,9 @@ def crawl():
         f"Uploading {local_zip_file_name} to {remote_file_name} in bucket {bucket_name}"
     )
 
-    client.upload_file(local_zip_file_name, bucket_name, remote_file_name)
-
-    # client.upload_file(
-    #     local_zip_file_name, bucket_name, remote_file_name, ExtraArgs={"ACL": "public-read"}
-    # )
+    client.upload_file(
+        local_zip_file_name,
+        bucket_name,
+        remote_file_name,
+        ExtraArgs={"ACL": "public-read"},
+    )
