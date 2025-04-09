@@ -2,10 +2,23 @@
 
 The `Funding Crawler` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWK. The results are stored in a `.parquet` file, which can be downloaded via a separate link:
 
+
 **[Link to data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/data.zip)**
 
 - The Crawler runs following cron syntax: `0 2 */2 * *`. First run occured on Mar 19.
 - The data includes programs currently available on the website, but also deleted programs.
+
+## License
+### Code 
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+see `LICENSE-CODE`
+
+### Data 
+
+We refer to the [imprint of foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) of the Federal Ministry for Economic Affairs and Climate Action which indicates [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) as the license for all texts of the website. The dataset provided in this repository transfers information on each funding program into a machine-readable format. No copyright-relevant changes are made to texts or content.
+
 
 ## Data Structure Description
 
@@ -97,16 +110,6 @@ You can run a spcific test with:
 ```bash
 uv run pytest tests/test_spider.py -s -vv
 ```
-
-### Code 
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-see `LICENSE-CODE`
-
-### Data 
-
-We refer to the [imprint of foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) of the Federal Ministry for Economic Affairs and Climate Action which indicates [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) as the license for all texts of the website. The dataset provided in this repository transfers information on each funding program into a machine-readable format. No copyright-relevant changes are made to texts or content.
 
 ## Contact
 
