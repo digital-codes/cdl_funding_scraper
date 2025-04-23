@@ -25,6 +25,9 @@ image = (
 
 app = modal.App(name="cdl_awo_funding_crawler", image=image)
 
+dataset_name = "foerderdatenbankdumpbackend"
+bucket_name = "foerderdatenbankdump"
+
 
 @app.function(
     mounts=[
@@ -50,9 +53,6 @@ app = modal.App(name="cdl_awo_funding_crawler", image=image)
     timeout=3600,
 )
 def crawl():
-    dataset_name = "foerderdatenbankdumpbackend"
-    bucket_name = "foerderdatenbankdump"
-
     local_license_file_name = "LICENSE-DATA"
     local_zip_file_name = "data.zip"
     local_data_file_name = "db.parquet"
@@ -79,6 +79,7 @@ def crawl():
     scraping_host.run(
         columns=FundingProgramSchema,
         write_disposition={
+            "primary_key": "id_hash",
             "disposition": "merge",
             "strategy": "scd2",
             "validity_column_names": ["on_website_from", "on_website_to"],

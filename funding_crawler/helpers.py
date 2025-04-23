@@ -18,23 +18,9 @@ def compute_checksum(data: dict, fields: list[str]) -> str:
     return checksum
 
 
-def gen_query(dataset_name, columns):
-    query = f"""
-    -- 1. Aggregate retired data with previous update dates for each id_hash
-    WITH aggregated_data_retired AS (
-        SELECT
-            id_hash AS agg_id,
-            ARRAY_AGG(on_website_to) AS previous_update_dates
-        FROM
-            {dataset_name}
-        WHERE
-            on_website_to IS NOT NULL
-        GROUP BY
-            id_hash
-    ),
-
-    -- 2. Filter new or unchanged data where on_website_to is NULL (should be one per id)
-    data_new AS (
+def gen_comp_b(dataset_name, columns):
+    # Filter new or unchanged data where on_website_to is NULL (should be one per id)
+    return f"""
         SELECT
             id_hash AS new_id_hash,
             {", ".join([col for col in columns if col != "id_hash"])},
@@ -42,24 +28,84 @@ def gen_query(dataset_name, columns):
         FROM
             {dataset_name}
         WHERE
-            on_website_to IS NULL
+            on_website_to IS NULL"""
+
+
+def gen_comp_a(dataset_name):
+    # Aggregate retired data with previous update dates for each id_hash
+    return f"""
+SELECT
+            id_hash AS agg_id,
+            ARRAY_AGG(on_website_to) AS previous_update_dates,
+            MAX(on_website_to) as last_updated
+        FROM
+            {dataset_name}
+        WHERE
+            on_website_to IS NOT NULL
+        GROUP BY
+            id_hash
+            """
+
+
+def gen_comp_c(dataset_name, columns):
+    return f"""
+     WITH aggregated_data_retired AS(
+        {gen_comp_a(dataset_name)}
+     )
+     SELECT 
+            aggregated_data_retired.agg_id,
+            aggregated_data_retired.previous_update_dates,
+            aggregated_data_retired.last_updated,
+            {", ".join([f"{dataset_name}.{col}" for col in columns if col != "id_hash"])}
+        FROM aggregated_data_retired
+        JOIN {dataset_name} ON aggregated_data_retired.agg_id = {dataset_name}.id_hash 
+            AND aggregated_data_retired.last_updated = {dataset_name}.on_website_to"""
+
+
+def gen_query(dataset_name, columns):
+    coalesce_columns = [
+        f"COALESCE(data_new.{col}, most_recent_data_retired.{col}) AS {col}"
+        for col in columns
+        if col != "id_hash"
+    ]
+
+    query = f"""
+    WITH data_new AS (
+        {gen_comp_b(dataset_name, columns)}
+    ),
+    most_recent_data_retired AS (
+        {gen_comp_c(dataset_name, columns)}
+    ),
+    deleted_records AS (
+        SELECT 
+            most_recent_data_retired.agg_id
+        FROM 
+            most_recent_data_retired
+        LEFT JOIN 
+            data_new
+            ON most_recent_data_retired.agg_id = data_new.new_id_hash
+        WHERE 
+            data_new.new_id_hash IS NULL
     )
 
-    -- 3. Combine new data with historical updates (include all old data as well)
     SELECT
-        COALESCE(data_new.new_id_hash, aggregated_data_retired.agg_id) AS id_hash,
-        {", ".join([f"data_new.{col}" for col in columns if col != "id_hash"])},
-        aggregated_data_retired.previous_update_dates,
-        data_new.on_website_from AS last_updated,
+        COALESCE(data_new.new_id_hash, most_recent_data_retired.agg_id) AS id_hash,
+        {", ".join(coalesce_columns)},
+        most_recent_data_retired.previous_update_dates AS previous_update_dates,
+        most_recent_data_retired.last_updated AS last_updated,
+        data_new.on_website_from AS on_website_from,
         CASE 
-            WHEN aggregated_data_retired.agg_id IS NOT NULL AND data_new.new_id_hash IS NULL THEN TRUE
+            WHEN deleted_records.agg_id IS NOT NULL THEN TRUE
             ELSE FALSE
         END AS deleted
-    FROM
-        data_new
-    FULL OUTER JOIN
-        aggregated_data_retired
-        ON data_new.new_id_hash = aggregated_data_retired.agg_id
+        FROM
+            data_new
+        FULL OUTER JOIN
+            most_recent_data_retired
+            ON data_new.new_id_hash = most_recent_data_retired.agg_id
+        LEFT JOIN
+            deleted_records
+            ON COALESCE(data_new.new_id_hash, most_recent_data_retired.agg_id) = deleted_records.agg_id
     """
     return query
 

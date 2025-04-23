@@ -22,7 +22,7 @@ We refer to the [imprint of foerderdatenbank.de](https://www.foerderdatenbank.de
 
 ## Data Structure Description
 
-The columns of the linked dataset correspond to the standardized fields of the detail pages on the scraped website and are defined in the `funding_crawler/models.py` file, but without the checksum and including three additional meta fields `last_updated`, `previous_update_dates` and `offline` (dates correspond to the date of the pipeline run when changes were detected).
+The columns of the linked dataset correspond to the standardized fields of the detail pages on the scraped website and are defined in the `funding_crawler/models.py` file, but without the checksum and including three additional meta fields `last_updated`,  `on_website_from`, `previous_update_dates` and `offline` (dates correspond to the date of the pipeline run when changes were detected).
 
 ## Functionality
 
