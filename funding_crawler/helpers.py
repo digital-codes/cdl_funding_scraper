@@ -36,7 +36,7 @@ def gen_comp_a(dataset_name):
     return f"""
 SELECT
             id_hash AS agg_id,
-            ARRAY_AGG(on_website_to) AS previous_update_dates,
+            ARRAY_AGG(on_website_to ORDER BY on_website_to) AS previous_update_dates,
             MAX(on_website_to) as last_updated
         FROM
             {dataset_name}
@@ -121,15 +121,13 @@ def pydantic_to_polars_schema(model: type[BaseModel]) -> Dict[str, Any]:
     """Convert Pydantic model fields to Polars schema overrides."""
     schema_overrides = {}
     for field_name, field in model.__annotations__.items():
-        # Get the base type (handling Optional/List wrappers)
         base_type = field
         if hasattr(field, "__origin__"):
-            if field.__origin__ is Union:  # handles Optional
+            if field.__origin__ is Union:
                 base_type = field.__args__[0]
-            elif field.__origin__ is list:  # handles List
-                continue  # Let Polars handle list types automatically
+            elif field.__origin__ is list:
+                continue
 
-        # Map Python/Pydantic types to Polars types
         if base_type is str:
             schema_overrides[field_name] = pl.Utf8
 
