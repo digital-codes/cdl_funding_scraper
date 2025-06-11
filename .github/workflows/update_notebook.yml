@@ -35,7 +35,7 @@ jobs:
           pip install jupyter nbconvert
 
       - name: Convert notebook to HTML
-        run: jupyter nbconvert index.ipynb --to html
+        run: jupyter nbconvert index.ipynb --to html --execute
 
       - name: Commit and push HTML
         run: |
