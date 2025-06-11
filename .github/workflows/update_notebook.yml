@@ -33,7 +33,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install uv
-          uv install
+          uv sync
 
       - name: Convert notebook to HTML
         run: uv run jupyter nbconvert index.ipynb --to html --execute
