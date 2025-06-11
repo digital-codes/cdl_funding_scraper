@@ -1,58 +1,51 @@
 name: Update Index Notebook
+run-name: Updating index notebook 🚀
 
 on:
   schedule:
-    - cron: '0 0 * * 0'        # every Sunday at midnight UTC
+    - cron: '@weekly'
   workflow_dispatch:
 
 permissions:
-  contents: read              # we only read sources
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
-    name: Convert, Build & Deploy
+  convert-and-push:
+    name: Convert notebook and push HTML
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
           persist-credentials: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install nbconvert
+          pip install jupyter nbconvert
 
-      - name: Convert index.ipynb to HTML
-        run: jupyter nbconvert index.ipynb --to html --output index.html
+      - name: Convert notebook to HTML
+        run: jupyter nbconvert index.ipynb --to html
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v3
-
-      - name: Upload artifact for Pages
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: index.html
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
+      - name: Commit and push HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          # Check if there are changes before committing
+          if ! git diff --cached --quiet; then
+            git commit -m "Update index.html"
+            git push
+          else
+            echo "No changes to commit"
+          fi
