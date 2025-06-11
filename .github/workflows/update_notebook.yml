@@ -3,7 +3,7 @@ run-name: Updating index notebook 🚀
 
 on:
   schedule:
-    - cron: '@weekly'  # lowercase 'w'
+    - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
   workflow_dispatch:
 
 permissions:
