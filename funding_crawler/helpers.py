@@ -55,6 +55,7 @@ def gen_comp_c(dataset_name, columns):
      SELECT 
             aggregated_data_retired.agg_id,
             aggregated_data_retired.previous_update_dates,
+            {dataset_name}.on_website_from,
             aggregated_data_retired.last_updated,
             {", ".join([f"{dataset_name}.{col}" for col in columns if col != "id_hash"])}
         FROM aggregated_data_retired
@@ -93,7 +94,7 @@ def gen_query(dataset_name, columns):
         {", ".join(coalesce_columns)},
         most_recent_data_retired.previous_update_dates AS previous_update_dates,
         most_recent_data_retired.last_updated AS last_updated,
-        data_new.on_website_from AS on_website_from,
+        COALESCE(data_new.on_website_from, most_recent_data_retired.on_website_from) AS on_website_from,
         CASE 
             WHEN deleted_records.agg_id IS NOT NULL THEN TRUE
             ELSE FALSE

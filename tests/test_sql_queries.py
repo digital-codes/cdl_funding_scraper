@@ -119,6 +119,15 @@ def test_gen_query_complete():
     assert len(deleted) > 0
     assert None not in deleted
 
+    assert (
+        len(
+            df.filter(pl.col("deleted") == True).filter(  # noqa: E712
+                pl.col("on_website_from").is_null()
+            )
+        )
+        == 0
+    )
+
     print("deleted: ", len(deleted))
 
     present = df.filter(pl.col("deleted") == False)  # noqa: E712
