@@ -1,4 +1,5 @@
 import dlt
+import modal.mount
 from funding_crawler.spider import FundingSpider
 from funding_crawler.dlt_utils.helpers import create_pipeline_runner, cfg_provider
 from funding_crawler.helpers import gen_query, pydantic_to_polars_schema
@@ -21,6 +22,11 @@ image = (
     modal.Image.debian_slim()
     .copy_local_file("requirements.txt")
     .run_commands("pip install uv && uv pip install --system -r requirements.txt")
+    .copy_local_file(local_path="dlt_config.toml", remote_path="/root/dlt_config.toml")
+    .copy_local_file(
+        local_path="scrapy_settings.py", remote_path="/root/scrapy_settings.py"
+    )
+    .add_local_python_source("funding_crawler")
 )
 
 app = modal.App(name="cdl_awo_funding_crawler", image=image)
@@ -30,15 +36,6 @@ bucket_name = "foerderdatenbankdump"
 
 
 @app.function(
-    mounts=[
-        modal.Mount.from_local_python_packages("funding_crawler"),
-        modal.Mount.from_local_file(
-            local_path="dlt_config.toml", remote_path="/root/dlt_config.toml"
-        ),
-        modal.Mount.from_local_file(
-            local_path="scrapy_settings.py", remote_path="/root/scrapy_settings.py"
-        ),
-    ],
     secrets=[
         modal.Secret.from_local_environ(
             [

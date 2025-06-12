@@ -621,20 +621,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fastapi"
-version = "0.115.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pydantic" },
-    { name = "starlette" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ae/29/f71316b9273b6552a263748e49cd7b83898dc9499a663d30c7b9cb853cb8/fastapi-0.115.5.tar.gz", hash = "sha256:0e7a4d0dc0d01c68df21887cce0945e72d3c48b9f4f79dfe7a7d53aa08fbb289", size = 301047 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/54/c4/148d5046a96c428464557264877ae5a9338a83bbe0df045088749ec89820/fastapi-0.115.5-py3-none-any.whl", hash = "sha256:596b95adbe1474da47049e802f9a65ab2ffa9c2b07e7efee70eb8a66c9f2f796", size = 94866 },
-]
-
-[[package]]
 name = "fastjsonschema"
 version = "2.21.1"
 source = { registry = "https://pypi.org/simple" }
@@ -765,7 +751,7 @@ requires-dist = [
     { name = "dlt", extras = ["duckdb", "postgres"], specifier = "==1.5.0" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "lxml", specifier = ">=5.3.0" },
-    { name = "modal", specifier = "==0.67.6" },
+    { name = "modal", specifier = "==1.0.3" },
     { name = "polars", specifier = ">=1.15.0" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pyarrow", specifier = ">=18.1.0" },
@@ -1623,13 +1609,12 @@ wheels = [
 
 [[package]]
 name = "modal"
-version = "0.67.6"
+version = "1.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "certifi" },
     { name = "click" },
-    { name = "fastapi" },
     { name = "grpclib" },
     { name = "protobuf" },
     { name = "rich" },
@@ -1641,8 +1626,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "watchfiles" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/f2/89/0df3bb3c899fa01d8397ae2ad1d77b379bbee4bd7f655463da9aa7ffd62f/modal-1.0.3.tar.gz", hash = "sha256:7f27553c93529f5ac27f3d2ab2f7c0c2c0053314a35984ad25ebf8ede193ad14", size = 509798 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/22/64/8ed8f795ffdff3e2b850a7ea2c7d0b7b9457fdfa2f113287426705ac2699/modal-0.67.6-py3-none-any.whl", hash = "sha256:2fe2f1d5bdd881eea4d9c31b44983770be0f9b9f06e220ddf9dc51f610678a66", size = 487982 },
+    { url = "https://files.pythonhosted.org/packages/3c/36/259f5deecd55eed136286f13582d62fee3529cd8a49f5100620fa44ef2d8/modal-1.0.3-py3-none-any.whl", hash = "sha256:16cc4f98f755cfc0d0c84b069a0239eb4a9a634e105d38bfa0666301e918544d", size = 577893 },
 ]
 
 [[package]]
@@ -2922,28 +2908,16 @@ wheels = [
 ]
 
 [[package]]
-name = "starlette"
-version = "0.41.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anyio" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/4c/9b5764bd22eec91c4039ef4c55334e9187085da2d8a2df7bd570869aae18/starlette-0.41.3.tar.gz", hash = "sha256:0e4ab3d16522a255be6b28260b938eae2482f98ce5cc934cb08dce8dc3ba5835", size = 2574159 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/00/2b325970b3060c7cecebab6d295afe763365822b1306a12eeab198f74323/starlette-0.41.3-py3-none-any.whl", hash = "sha256:44cedb2b7c77a9de33a8b74b2b90e9f50d11fcf25d8270ea525ad71a25374ff7", size = 73225 },
-]
-
-[[package]]
 name = "synchronicity"
-version = "0.9.3"
+version = "0.9.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sigtools" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d9/d2/1356871a266d43f2f71a0f48ee1c3ccf3143b5d1a1ee5775f880875425a1/synchronicity-0.9.3.tar.gz", hash = "sha256:d3856601e63e518a143ec42f57988d9e88e4f94716168b717fd4b1b64f4704fd", size = 46699 }
+sdist = { url = "https://files.pythonhosted.org/packages/9a/82/eccd97a89129c8812fa25a1b1f301e3c5e2c92927f9e3854ff9404952b4a/synchronicity-0.9.14.tar.gz", hash = "sha256:5aff1c4120006904ebe1893a64467523d8b8e6a0c5d7e77dbbafc4713e4c7e41", size = 51634 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/37/3c/8688b93ec7c3fe3cbb9c34ab16773c436fc3c92ced5c465e491192afca68/synchronicity-0.9.3-py3-none-any.whl", hash = "sha256:73c06fe6613c698cbcfa6e77ab6b8d49cce3494c5afc3ef23b007b1fdff2256d", size = 34016 },
+    { url = "https://files.pythonhosted.org/packages/65/60/e16ebc2642010da90c06ba07ca3c7ea8f3bb9f2d2205b13c9c6f2e9bd3fa/synchronicity-0.9.14-py3-none-any.whl", hash = "sha256:0476de3dbcc841e21087c3bdcd613cc87b22f3bebc85306dcf27eed542e9372b", size = 37242 },
 ]
 
 [[package]]
