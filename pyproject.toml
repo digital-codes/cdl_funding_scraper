@@ -22,6 +22,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "jupyter>=1.1.1",
     "tqdm>=4.67.1",
+    "markdownify>=1.1.0",
 ]
 
 [tool.uv.sources]

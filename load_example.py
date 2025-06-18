@@ -14,3 +14,5 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         df = pl.read_parquet(f)
 
 print(df.head())
+
+print(df["funding_type"].to_list()[999])

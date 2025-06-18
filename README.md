@@ -1,9 +1,11 @@
 # Funding Crawler
 
-The `Funding Crawler` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWK. The results are stored in a `.parquet` file, which can be downloaded via a separate link:
+The `Funding Crawler` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWK. The results are stored as `.parquet` and `.csv` files, which can be downloaded via a separate link:
 
 
-**[Link to data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/data.zip)**
+**[Link to parquet data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/parquet_data.zip)** (does include all columns)
+
+**[Link to csv data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/csv_data.zip)** (does not include all available columns and list and struct data was converted to string)
 
 - The Crawler runs following cron syntax: `0 2 */2 * *`. First run occured on Mar 19.
 - The data includes programs currently available on the website, but also deleted programs.

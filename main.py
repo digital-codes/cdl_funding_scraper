@@ -7,6 +7,7 @@ from scrapy_settings import scrapy_settings
 from funding_crawler.models import FundingProgramSchema
 import polars as pl
 import boto3
+from markdownify import markdownify as md
 import zipfile
 from sqlalchemy import create_engine
 import os
@@ -51,9 +52,6 @@ bucket_name = "foerderdatenbankdump"
 )
 def crawl():
     local_license_file_name = "LICENSE-DATA"
-    local_zip_file_name = "data.zip"
-    local_data_file_name = "db.parquet"
-    remote_file_name = f"data/{local_zip_file_name}"
 
     postgres_conn_str = os.getenv("POSTGRES_CONN_STR")
     assert postgres_conn_str
@@ -94,14 +92,30 @@ def crawl():
         batch_size=10000,
     )
 
-    df.write_parquet(local_data_file_name)
+    min_cols = [
+        "id_hash",
+        "deleted",
+        "on_website_from",
+        "url",
+        "title",
+        "description",
+        "more_info",
+        "legal_basis",
+        "funding_type",
+        "funding_area",
+        "funding_location",
+        "eligible_applicants",
+        "funding_body",
+    ]
+    format_cols = ["description", "more_info", "legal_basis"]
+
+    mindf = df[min_cols]
+    print("formatting columns...")
+    for col in format_cols:
+        mindf = mindf.with_columns(pl.col(col).map_elements(md, return_dtype=pl.String))
 
     with open(local_license_file_name, "w") as f:
         f.write(license_content)
-
-    with zipfile.ZipFile(local_zip_file_name, "w") as zipf:
-        zipf.write(local_data_file_name, os.path.basename(local_data_file_name))
-        zipf.write(local_license_file_name, os.path.basename(local_license_file_name))
 
     session = boto3.session.Session()
 
@@ -116,13 +130,44 @@ def crawl():
         ),
     )
 
-    print(
-        f"Uploading {local_zip_file_name} to {remote_file_name} in bucket {bucket_name}"
-    )
+    for ext in ["csv", "parquet"]:
+        local_data_name = f"data.{ext}"
+        local_data_min_format = f"min_data_format.{ext}"
+        local_zip_name = f"{ext}_data.zip"
+        remote_zip_name = f"data/{local_zip_name}"
 
-    client.upload_file(
-        local_zip_file_name,
-        bucket_name,
-        remote_file_name,
-        ExtraArgs={"ACL": "public-read"},
-    )
+        if ext == "csv":
+            print("handling list columns")
+            for col in mindf.columns:
+                if mindf[col].dtype == pl.List:
+                    mindf = mindf.with_columns(
+                        pl.col(col)
+                        .list.join(", ")
+                        .alias(col)  # Use original column name
+                    )
+
+            mindf.write_csv(local_data_min_format)
+        elif ext == "parquet":
+            df.write_parquet(local_data_name)
+            mindf.write_parquet(local_data_min_format)
+        else:
+            raise
+
+        with zipfile.ZipFile(local_zip_name, "w") as zipf:
+            if ext != "csv":
+                zipf.write(local_data_name, os.path.basename(local_data_name))
+            zipf.write(local_data_min_format, os.path.basename(local_data_min_format))
+            zipf.write(
+                local_license_file_name, os.path.basename(local_license_file_name)
+            )
+
+        print(
+            f"Uploading {local_zip_name} to {remote_zip_name} in bucket {bucket_name}"
+        )
+
+        client.upload_file(
+            local_zip_name,
+            bucket_name,
+            remote_zip_name,
+            ExtraArgs={"ACL": "public-read"},
+        )
