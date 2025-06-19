@@ -2,7 +2,9 @@ import hashlib
 import json
 from pydantic import BaseModel
 import polars as pl
+import requests
 from typing import Union, Dict, Any
+from bs4 import BeautifulSoup
 
 
 def compute_checksum(data: dict, fields: list[str]) -> str:
@@ -94,7 +96,7 @@ def gen_query(dataset_name, columns):
         {", ".join(coalesce_columns)},
         most_recent_data_retired.previous_update_dates AS previous_update_dates,
         most_recent_data_retired.last_updated AS last_updated,
-        COALESCE(data_new.on_website_from, most_recent_data_retired.on_website_from) AS on_website_from,
+        COALESCE(most_recent_data_retired.on_website_from, data_new.on_website_from) AS on_website_from,
         CASE 
             WHEN deleted_records.agg_id IS NOT NULL THEN TRUE
             ELSE FALSE
@@ -133,3 +135,30 @@ def pydantic_to_polars_schema(model: type[BaseModel]) -> Dict[str, Any]:
             schema_overrides[field_name] = pl.Utf8
 
     return schema_overrides
+
+
+def get_hits_count(url):
+    """
+    Extract hits count from the German funding database
+    """
+    # Add headers to mimic a browser request
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    # Make the request
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    # Parse the HTML
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Look for common patterns where hit counts are displayed
+    # These selectors might need adjustment based on actual page structure
+    selector = "hits--count"
+
+    element = soup.find("span", {"id": selector})
+    if element:
+        return int(element.get_text().strip())
+    else:
+        raise RuntimeError("Error parsing content")

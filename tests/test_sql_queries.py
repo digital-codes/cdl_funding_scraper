@@ -30,9 +30,7 @@ def test_gen_comp_a():
     )
     assert len(df) > 1
 
-    print(df.head())
-
-    assert len(df) == len(df["agg_id"].unique())
+    assert len(list(df["agg_id"].unique())) == len(df), "agg_id is not unique!"
 
 
 def test_gen_comp_b():
@@ -46,9 +44,11 @@ def test_gen_comp_b():
     )
     assert len(df) > 1
 
-    assert None not in list(df["on_website_from"].unique())
+    assert len(list(df["new_id_hash"].unique())) == len(
+        df
+    ), "new_id_hash is not unique!"
 
-    print(df.head())
+    assert None not in list(df["on_website_from"].unique())
 
 
 def test_gen_comp_c():
@@ -62,11 +62,11 @@ def test_gen_comp_c():
     )
     assert len(df) > 1
 
-    print(df.head())
-
     df_with_lengths = df.with_columns(
         pl.col("previous_update_dates").list.len().alias("list_length")
     )
+
+    assert len(list(df["agg_id"].unique())) == len(df), "agg_id is not unique!"
 
     all_length_one = df_with_lengths.filter(pl.col("list_length") == 1)
     assert len(all_length_one) < len(df)
@@ -113,7 +113,8 @@ def test_gen_query_complete():
     print(df.head())
     print(len(df))
 
-    assert len(list(df["id_url"].unique())) == len(df), "is is not unique!"
+    assert len(list(df["id_hash"].unique())) == len(df), "id_hash is not unique!"
+    assert len(list(df["id_url"].unique())) == len(df), "id_url is not unique!"
 
     deleted = list(df.filter(pl.col("deleted"))["id_url"])
     assert len(deleted) > 0
@@ -134,3 +135,5 @@ def test_gen_query_complete():
 
     assert len(present.filter(pl.col("last_updated").is_null())) < len(present)
     assert len(present.filter(pl.col("previous_update_dates").is_null())) < len(present)
+
+    assert len(present.filter(pl.col("last_updated") < pl.col("on_website_from"))) == 0
