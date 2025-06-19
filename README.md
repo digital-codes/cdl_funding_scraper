@@ -7,7 +7,7 @@ The `Funding Crawler` project is a Python-based web crawling tool and pipeline d
 
 **[Link to csv data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/csv_data.zip)** (does not include all available columns and list and struct data was converted to string)
 
-- The Crawler runs following cron syntax: `0 2 */2 * *`. First run occured on Mar 19.
+- The Crawler runs following cron syntax: `0 2 */2 * *`. First run occured on Jun 19 25.
 - The data includes programs currently available on the website, but also deleted programs.
 
 **[Live notebook with some descriptive stats](https://correlaid.github.io/cdl_funding_crawler/)** (updated weekly)
