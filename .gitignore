@@ -8,3 +8,5 @@ logs/*
 *.parquet
 
 .env
+
+errors/*

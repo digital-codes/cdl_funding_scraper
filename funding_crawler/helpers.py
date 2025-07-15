@@ -5,6 +5,8 @@ import polars as pl
 import requests
 from typing import Union, Dict, Any
 from bs4 import BeautifulSoup
+import random
+import time
 
 
 def compute_checksum(data: dict, fields: list[str]) -> str:
@@ -137,28 +139,36 @@ def pydantic_to_polars_schema(model: type[BaseModel]) -> Dict[str, Any]:
     return schema_overrides
 
 
-def get_hits_count(url):
+def get_hits_count(url, max_retries=3, backoff_factor=0.5):
     """
-    Extract hits count from the German funding database
+    Extract number of funding programs with retry logic.
     """
-    # Add headers to mimic a browser request
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
 
-    # Make the request
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    retry_count = 0
+    while retry_count <= max_retries:
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, "html.parser")
+            element = soup.find("span", {"id": "hits--count"})
+            if element:
+                return int(element.get_text().strip())
+            else:
+                raise RuntimeError("Hits count element not found")
+        except requests.RequestException as e:
+            print(f"Request to {url} failed (retry {retry_count+1}/{max_retries}): {e}")
+        except Exception as e:
+            print(
+                f"Error parsing content from {url} (retry {retry_count+1}/{max_retries}): {e}"
+            )
 
-    # Parse the HTML
-    soup = BeautifulSoup(response.content, "html.parser")
+        retry_count += 1
+        if retry_count <= max_retries:
+            backoff_delay = backoff_factor * (2**retry_count) + random.uniform(0, 1)
+            print(f"Retrying in {backoff_delay:.2f} seconds...")
+            time.sleep(backoff_delay)
 
-    # Look for common patterns where hit counts are displayed
-    # These selectors might need adjustment based on actual page structure
-    selector = "hits--count"
-
-    element = soup.find("span", {"id": selector})
-    if element:
-        return int(element.get_text().strip())
-    else:
-        raise RuntimeError("Error parsing content")
+    raise RuntimeError(f"All retries failed for {url}")

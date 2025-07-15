@@ -6,6 +6,7 @@ scrapy_settings = {
     "LOGSTATS_INTERVAL": "5.0",
     # https://docs.scrapy.org/en/latest/topics/practices.html#avoiding-getting-banned
     "COOKIES_ENABLED": False,
-    "DOWNLOAD_DELAY": 0.4,
+    "DOWNLOAD_DELAY": 0.8,
     "RANDOMIZE_DOWNLOAD_DELAY": True,
+    "RETRY_TIMES": 3,
 }
