@@ -1,6 +1,6 @@
 # Funding Crawler
 
-The `Funding Crawler` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWK. The results are stored as `.parquet` and `.csv` files, which can be downloaded via a separate link:
+The `Funding Crawler` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWE. The results are stored as `.parquet` and `.csv` files, which can be downloaded via a separate link:
 
 
 **[Link to parquet data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/parquet_data.zip)** (does include all columns)
@@ -21,7 +21,7 @@ see `LICENSE-CODE`
 
 ### Data 
 
-We refer to the [imprint of foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) of the Federal Ministry for Economic Affairs and Climate Action which indicates [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) as the license for all texts of the website. The dataset provided in this repository transfers information on each funding program into a machine-readable format. No copyright-relevant changes are made to texts or content.
+We refer to the [imprint of foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) of the German Federal Ministry for Economic Affairs and Energy which indicates [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) as the license for all texts of the website. The dataset provided in this repository transfers information on each funding program into a machine-readable format. No copyright-relevant changes are made to texts or content.
 
 
 ## Data Structure Description
