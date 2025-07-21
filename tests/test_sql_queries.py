@@ -5,7 +5,7 @@ from funding_crawler.helpers import (
     gen_comp_c,
     pydantic_to_polars_schema,
 )
-
+import random
 import polars as pl
 from sqlalchemy import create_engine
 import os
@@ -130,6 +130,15 @@ def test_gen_query_complete():
     )
 
     print("deleted: ", len(deleted))
+
+    # get random deleted
+    random_deleted = random.choice(deleted)
+    print(random_deleted)
+
+    active = list(df.filter(pl.col("deleted") == False)["id_url"])  # noqa: E712
+    assert len(active) > 0
+    assert None not in active
+    print("active: ", len(active))
 
     present = df.filter(pl.col("deleted") == False)  # noqa: E712
 

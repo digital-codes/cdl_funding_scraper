@@ -2,6 +2,7 @@ from scrapy.http import HtmlResponse, Request
 from funding_crawler.spider import FundingSpider
 from pydantic import ValidationError
 from funding_crawler.models import FundingProgramSchema
+import requests
 
 
 def test_parse():
@@ -144,3 +145,30 @@ def test_parse_details_single_alt():
         validated_item.funding_body
         == "Bundesministerium für Bildung und Forschung (BMBF)"
     )
+
+
+def test_parse_details_single_fail_07_25():
+    spider = FundingSpider()
+
+    response = requests.get(
+        "https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BKM/deutsch-franzoesische-kooperationen-film-ffa.html"
+    )
+
+    detail_html = HtmlResponse(
+        url="https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BKM/deutsch-franzoesische-kooperationen-film-ffa.html",
+        body=response.content,
+        encoding="utf-8",
+    )
+
+    results = list(spider.parse_details(detail_html))
+
+    assert len(results) == 1, "Should return exactly one item"
+
+    item = results[0]
+
+    try:
+        validated_item = FundingProgramSchema(**item)
+    except ValidationError as e:
+        raise AssertionError(f"Validation error: {e}")
+
+    print(validated_item.checksum)

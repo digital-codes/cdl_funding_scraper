@@ -150,7 +150,7 @@ def crawl():
     hits_count = get_hits_count(search_url)
     assert (
         abs(len(df.filter(pl.col("deleted") == False)) - hits_count) <= 2  # noqa: E712
-    ), f"Scraped items do not approx. equal amount displayed on website {len(df.filter(pl.col("deleted").is_null()))}, {hits_count}"
+    ), f"Scraped items do not approx. equal amount displayed on website {len(df.filter(pl.col("deleted") == False))}, {hits_count}"  # noqa: E712
 
     min_cols = [
         "id_hash",

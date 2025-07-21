@@ -98,6 +98,8 @@ class FundingSpider(Spider):
             key = dt.xpath("text()").get()
             if key:
                 key = translate_map.get(key.strip().replace(":", ""))
+                if not key:
+                    continue
             else:
                 continue
 
