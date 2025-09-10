@@ -3,47 +3,48 @@ from typing import List, Optional
 
 
 class FundingProgramSchema(BaseModel):
-    id_hash: str
-    id_url: str
-    url: str
-    title: str
+    # this model represents a funding program (Förderprogramm). It includes loosely all information that can be found on a page of an individual funding program
+    id_hash: str # id for funding program - acquired by hashing the URL 
+    id_url: str # id for funding program - taken from the url slug
+    url: str # the full url
+    title: str # title of the funding program 
 
-    description: str
-    more_info: Optional[str] = None
-    legal_basis: Optional[str] = None
+    description: str # Tab "Kurzzusammenfassung"
+    more_info: Optional[str] = None #  Tab "Zusatzinfos"
+    legal_basis: Optional[str] = None # Tab "Rechtsgrundlage"
 
     contact_info_institution: Optional[str] = (
         None  # contact info missing completely: https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMWi/dns-zukunftsfaehige-mobilitaet.html
-    )
-    contact_info_street: Optional[str] = None
-    contact_info_city: Optional[str] = None
-    contact_info_fax: Optional[str] = None
-    contact_info_phone: Optional[str] = None
-    contact_info_email: Optional[str] = None
-    contact_info_website: Optional[str] = None
+    ) # Ansprechpunkt
+    contact_info_street: Optional[str] = None # Ansprechpunkt Street
+    contact_info_city: Optional[str] = None # Ansprechpunkt City
+    contact_info_fax: Optional[str] = None # Ansprechpunkt Fax
+    contact_info_phone: Optional[str] = None # Ansprechpunkt Phone
+    contact_info_email: Optional[str] = None # Ansprechpunkt Email
+    contact_info_website: Optional[str] = None # Ansprechpunkt Website
 
     funding_type: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/KfW/erp-foerderkredit-gruendung-und-nachfolge.html
-    )
+    ) # Förderart
 
     funding_area: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMBF/photonik-digitalisierte-automatisierte-produktion.html
-    )
+    ) # Förderbereich
 
     funding_location: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMBF/morphologische-entwi-klimawand-nord-ostsee-86933.html
-    )
+    ) # Fördergebiet
 
     eligible_applicants: Optional[List[str]] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMBF/transfer-inklusive-bildung.html
-    )
+    ) # Förderberechtigte
 
     funding_body: Optional[str] = (
         None  # missing for e.g. https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Land/Rheinland-Pfalz/staerkung-forschung-tech-entwicklung-innovation.html
-    )
+    ) # Fördergeber "Bund" oder "Land"
 
-    further_links: Optional[List[str]] = None
+    further_links: Optional[List[str]] = None  # Weiterführende Links
 
-    checksum: str
+    checksum: str # used to see whether there were changes
 
-    license_info: str
+    license_info: str # fixed to CC-BY-ND 4.0.

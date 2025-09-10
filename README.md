@@ -1,16 +1,30 @@
-# Funding Crawler
+# Funding Scraper
 
-The `Funding Crawler` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWE. The results are stored as `.parquet` and `.csv` files, which can be downloaded via a separate link:
+The `Funding Scraper` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWE. 
+
+- The Scraper runs following cron syntax: `0 2 */2 * *`. First run occured on June 19th 2025.
+
+## Data
+The data contains data for each individual funding program that has been listed on foerderdatenbank.de since June 19th 2025 (the first run of the pipeline). It also includes programs that were once listed but are now deleted. 
+Data should be updated automatically every two days between 2am and 3am (cron syntax: `0 2 */2 * *`). However, due to changes in data structure on foerderdatenbank.de beyond our control that can break the scraper, we cannot guarantee that data is always up-to-date. You can check when the data was last updated by downloading the csv zip file and checking the `Date modified` of the csv file. 
+
+The data are stored as `.parquet` and `.csv` files, which can be downloaded via the following links:
+
+- **[Link to parquet data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/parquet_data.zip)** -> this file contains all available columns and information
+- **[Link to csv data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/csv_data.zip)** -> due to limitations of the csv format, this file does not include all available columns and list and struct data were converted to string.
 
 
-**[Link to parquet data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/parquet_data.zip)** (does include all columns)
+The data contains columns containing the the information for each funding program ("Förderprogramm") that is available on its individual detail page. An example of such a detail page is available [here](https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Land/Baden-Wuerttemberg/energie-vom-land-sonne-wind-wasser.html). 
+The columns are defined and further explained in the file [`funding_crawler/models.py`](https://github.com/CorrelAid/cdl_funding_scraper/blob/main/funding_crawler/models.py). 
 
-**[Link to csv data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/csv_data.zip)** (does not include all available columns and list and struct data was converted to string)
+In addition to those columns, the data contain additional meta columns:
 
-- The Crawler runs following cron syntax: `0 2 */2 * *`. First run occured on Jun 19 25.
-- The data includes programs currently available on the website, but also deleted programs.
+- `on_website_from`: date when the funding program first appeared in the dataset
+- `last_updated`: date when the funding program was last updated
+- `previous_update_dates:`: list of dates when the funding program was previously updated 
+- `offline`: date when the funding program was not on the website anymore
 
-**[Live notebook with some descriptive stats](https://correlaid.github.io/cdl_funding_crawler/)** (updated weekly)
+Dates correspond to the date of the pipeline run when changes were detected.
 
 ## License
 ### Code 
@@ -23,10 +37,6 @@ see `LICENSE-CODE`
 
 We refer to the [imprint of foerderdatenbank.de](https://www.foerderdatenbank.de/FDB/DE/Meta/Impressum/impressum.html) of the German Federal Ministry for Economic Affairs and Energy which indicates [CC BY-ND 3.0 DE](https://creativecommons.org/licenses/by-nd/3.0/de/deed.de) as the license for all texts of the website. The dataset provided in this repository transfers information on each funding program into a machine-readable format. No copyright-relevant changes are made to texts or content.
 
-
-## Data Structure Description
-
-The columns of the linked dataset correspond to the standardized fields of the detail pages on the scraped website and are defined in the `funding_crawler/models.py` file, but without the checksum and including three additional meta fields `last_updated`,  `on_website_from`, `previous_update_dates` and `offline` (dates correspond to the date of the pipeline run when changes were detected).
 
 ## Functionality
 
@@ -56,9 +66,9 @@ The following describes the structure of the relevant folders and files.
 ```bash
 ├── dlt_config.toml            # Configuration file for the DLT pipeline
 ├── scrapy_settings.py         # Configuration settings for Scrapy
-├── funding_crawler            # Main project folder for the funding crawler Python code
+├── funding_crawler            # Main project folder for the funding scraper Python code
 │   ├── dlt_utils              # Utility module containing code for DLT to use Scrapy as a resource
-│   ├── helpers.py             # Helper functions for the core logic of the crawler
+│   ├── helpers.py             # Helper functions for the core logic of the scraper
 │   ├── models.py              # Data models used for validation
 │   ├── spider.py              # Contains the scraping logic in the form of a Scrapy spider
 ├── main.py                    # Entry point of the pipeline
@@ -73,8 +83,8 @@ The following describes the structure of the relevant folders and files.
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/awodigital/funding_crawler.git
-   cd funding_crawler
+   git clone https://github.com/CorrelAid/cdl_funding_scraper.git
+   cd cdl_funding_scraper
    ```
 
 2. **Install uv:**
@@ -103,6 +113,7 @@ The following describes the structure of the relevant folders and files.
     ```
 ## Redeploy pipeline
 Requires the env vars to be set described above:
+
 ```
 uv run modal deploy main.py
 ```
