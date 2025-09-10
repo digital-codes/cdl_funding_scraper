@@ -2,8 +2,6 @@
 
 The `Funding Scraper` project is a Python-based web crawling tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWE. 
 
-- The Scraper runs following cron syntax: `0 2 */2 * *`. First run occured on June 19th 2025.
-
 ## Data
 The data contains data for each individual funding program that has been listed on foerderdatenbank.de since June 19th 2025 (the first run of the pipeline). It also includes programs that were once listed but are now deleted. 
 Data should be updated automatically every two days between 2am and 3am (cron syntax: `0 2 */2 * *`). However, due to changes in data structure on foerderdatenbank.de beyond our control that can break the scraper, we cannot guarantee that data is always up-to-date. You can check when the data was last updated by downloading the csv zip file and checking the `Date modified` of the csv file. 
