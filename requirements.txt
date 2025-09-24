@@ -134,7 +134,7 @@ grpclib==0.4.7
     # via modal
 h11==0.14.0
     # via httpcore
-h2==4.1.0
+h2==4.3.0
     # via grpclib
 hexbytes==1.2.1
     # via dlt
