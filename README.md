@@ -1,3 +1,5 @@
+**Data is currently not being updated due to bugs on the website that cause inconsistent ordering**
+
 # Funding Scraper
 
 The `Funding Scraper` project is a Python-based web scraping tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWE. 
