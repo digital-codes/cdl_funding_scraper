@@ -2,7 +2,7 @@ import dlt
 import modal.mount
 from funding_crawler.spider import FundingSpider
 from funding_crawler.dlt_utils.helpers import create_pipeline_runner, cfg_provider
-from funding_crawler.helpers import gen_query, pydantic_to_polars_schema
+from funding_crawler.helpers import gen_query, pydantic_to_polars_schema, get_hits_count
 from scrapy_settings import scrapy_settings
 
 # from funding_crawler.helpers import get_hits_count
@@ -25,19 +25,21 @@ Lizenzinformationen zu jedem einzenlnen Förderprogramm inkl. URL können der Da
 
 image = (
     modal.Image.debian_slim()
-    .copy_local_file("requirements.txt")
+    .add_local_file(
+        local_path="requirements.txt", remote_path="/root/requirements.txt", copy=True
+    )
     .run_commands(
         "apt-get update",
-        "apt-get install -y curl gnupg lsb-release",
+        "apt-get install -y curl gnupg lsb-release zstd",
         "sh -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'",
         "curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg",
         "apt-get update",
         "apt-get install -y postgresql-client-17",
-        "pip install uv && uv pip install --system -r requirements.txt",
+        "pip install uv && uv pip install --system -r /root/requirements.txt",
         "echo 'done'",
     )
-    .copy_local_file(local_path="dlt_config.toml", remote_path="/root/dlt_config.toml")
-    .copy_local_file(
+    .add_local_file(local_path="dlt_config.toml", remote_path="/root/dlt_config.toml")
+    .add_local_file(
         local_path="scrapy_settings.py", remote_path="/root/scrapy_settings.py"
     )
     .add_local_python_source("funding_crawler")
@@ -80,15 +82,22 @@ def crawl():
     remote_dump_file_name = f"{local_dump_file_name}_{date}"
 
     print("dumping...")
-    pg_dump_cmd = (
-        f"pg_dump -Fc -v -d {postgres_conn_str} -f {local_dump_file_name} -Z zstd:12"
-    )
-    result = subprocess.run(pg_dump_cmd, shell=True, capture_output=True, text=True)
+    pg_dump_cmd = [
+        "/usr/bin/pg_dump",
+        "-Fc",
+        "-v",
+        "-d",
+        postgres_conn_str,
+        "-f",
+        local_dump_file_name,
+        "--compress=zstd:12",
+    ]
+    result = subprocess.run(pg_dump_cmd, capture_output=True)
 
     if result.returncode != 0:
         print(f"pg_dump failed with return code {result.returncode}")
-        print(f"STDERR: {result.stderr}")
-        print(f"STDOUT: {result.stdout}")
+        print(f"STDERR: {result.stderr.decode('utf-8', errors='replace')}")
+        print(f"STDOUT: {result.stdout.decode('utf-8', errors='replace')}")
         raise Exception(f"pg_dump failed with return code {result.returncode}")
 
     session = boto3.session.Session()
@@ -147,12 +156,11 @@ def crawl():
 
     assert len(list(df["id_hash"].unique())) == len(df), "id_hash is not unique!"
 
-    # this does not work, because the displayed number of search hits seems to be wrong?
-    # search_url = "https://www.foerderdatenbank.de/SiteGlobals/FDB/Forms/Suche/Foederprogrammsuche_Formular.html?resourceId=0065e6ec-5c0a-4678-b503-b7e7ec435dfd&input_=23adddb0-dcf7-4e32-96f5-93aec5db2716&pageLocale=de&filterCategories=FundingProgram"
-    # hits_count = get_hits_count(search_url)
-    # assert (
-    #     abs(len(df.filter(pl.col("deleted") == False)) - hits_count) <= 2  # noqa: E712
-    # ), f"Scraped items do not approx. equal amount displayed on website {len(df.filter(pl.col("deleted") == False))}, {hits_count}"  # noqa: E712
+    search_url = "https://www.foerderdatenbank.de/SiteGlobals/FDB/Forms/Suche/Foederprogrammsuche_Formular.html?resourceId=0065e6ec-5c0a-4678-b503-b7e7ec435dfd&input_=23adddb0-dcf7-4e32-96f5-93aec5db2716&pageLocale=de&filterCategories=FundingProgram"
+    hits_count = get_hits_count(search_url)
+    assert (
+        abs(len(df.filter(pl.col("deleted") == False)) - hits_count) <= 4  # noqa: E712
+    ), f"Scraped items do not approx. equal amount displayed on website {len(df.filter(pl.col("deleted") == False))}, {hits_count}"  # noqa: E712
 
     min_cols = [
         "id_hash",

@@ -172,3 +172,40 @@ def test_parse_details_single_fail_07_25():
         raise AssertionError(f"Validation error: {e}")
 
     print(validated_item.checksum)
+
+
+def test_parse_details_rechts_only():
+    """Test that spider handles pages with only Rechtsgrundlage tab (no description)"""
+    spider = FundingSpider()
+
+    with open("tests/test_scrapy/detail_rechts_only.html") as f:
+        detail_html = f.read()
+
+    response = HtmlResponse(
+        url="https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Land/Thueringen/schulbezogene-jahresprogramme-bne.html",
+        body=detail_html,
+        encoding="utf-8",
+    )
+
+    results = list(spider.parse_details(response))
+
+    assert len(results) == 1, "Should return exactly one item"
+
+    item = results[0]
+
+    try:
+        validated_item = FundingProgramSchema(**item)
+    except ValidationError as e:
+        raise AssertionError(f"Validation error: {e}")
+
+    # Description should be None since only Rechtsgrundlage tab exists
+    assert validated_item.description is None
+    assert validated_item.legal_basis is not None
+    assert len(validated_item.legal_basis) > 0, "Rechtsgrundlage should not be empty"
+    assert "Richtlinie zur Förderung" in validated_item.legal_basis
+    # Title may have whitespace variations
+    assert (
+        "Förderung von Bildung für nachhaltige Entwicklung (BNE) in Thüringen"
+        in validated_item.title
+    )
+    assert "non-formalen und informellen Bildungsbereich" in validated_item.title

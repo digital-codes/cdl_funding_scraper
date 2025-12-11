@@ -1,8 +1,11 @@
 import hashlib
 from scrapy import Request, Spider
+from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from funding_crawler.helpers import compute_checksum, gen_license
+from funding_crawler.models import FundingProgramSchema
 from w3lib.url import canonicalize_url
+from pydantic import ValidationError
 
 translate_map = {
     "Kurzzusammenfassung": "description",
@@ -125,50 +128,63 @@ class FundingSpider(Spider):
 
         if not dct["title"]:
             self.logger.warning(f"No title found on page: {response.url}")
-            return  # Don't yield items without titles
+            raise ValueError(f"No title found on page: {response.url}")
 
         tab_names = response.xpath(
             "/html/body/main/div[2]/div/div[1]/h2/span//text()"
         ).getall()
 
         if tab_names:
+            # try format with article tags first
             article_nodes = response.xpath("//div[@class='content']//article")
+
+            # if no articles found, try older format where content is in rich--text div
+            if not article_nodes:
+                article_nodes = response.xpath("//div[@class='rich--text']")
 
             for i, article in enumerate(article_nodes):
                 content = article.get()
-                key = translate_map.get(tab_names[i].strip())
+                try:
+                    key = translate_map[tab_names[i].strip()]
+                except KeyError:
+                    self.logger.error(
+                        f"Unknown tab name: '{tab_names[i].strip()}' on page: {response.url}"
+                    )
+                    raise CloseSpider(
+                        f"Unknown tab name: '{tab_names[i].strip()}' on page: {response.url}"
+                    )
+
                 dct[key] = content
+
+            # Log warning if description is missing
+            if "description" not in dct:
+                self.logger.warning(
+                    f"No 'Kurzzusammenfassung' (description) tab found on page: {response.url}. Found tabs: {tab_names}"
+                )
+                dct["description"] = None
         else:
             content_node = response.xpath(
                 "//main/div[@class='jumbotron']/following-sibling::div/div[@class='content']"
             ).get()
-            dct["description"] = content_node
 
             if not content_node:
-                self.logger.warning(
-                    f"No content structure found on page: {response.url}"
-                )
+                self.logger.warning(f"No description found on page: {response.url}")
+                dct["description"] = None
+            else:
+                dct["description"] = content_node
 
         dt_elements = response.xpath("//dt")
         dd_elements = response.xpath("//dd")
-
-        if (
-            not dt_elements
-            and not dd_elements
-            and not tab_names
-            and not dct.get("description")
-        ):
-            self.logger.warning(
-                f"No extractable data fields found on page: {response.url}"
-            )
 
         for dt, dd in zip(dt_elements, dd_elements):
             key = dt.xpath("text()").get()
             if key:
                 key = translate_map.get(key.strip().replace(":", ""))
                 if not key:
+                    self.logger.warning("Field not in translate map: ", key.strip())
                     continue
             else:
+                self.logger.warning("Field couldnt be extracted: ", dt, dd)
                 continue
 
             if key in [
@@ -267,5 +283,12 @@ class FundingSpider(Spider):
 
         date = datetime.today()
         dct["license_info"] = gen_license(dct["title"], date, dct["url"])
+
+        # Validate the item with Pydantic schema (applies after_validators)
+        try:
+            FundingProgramSchema(**dct)
+        except ValidationError as e:
+            self.logger.error(f"Validation error for program at {response.url}: {e}")
+            raise CloseSpider(f"Validation error for program at {response.url}: {e}")
 
         yield dct

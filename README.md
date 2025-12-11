@@ -5,6 +5,7 @@
 The `Funding Scraper` project is a Python-based web scraping tool and pipeline developed to extract funding programs from the [Förderdatenbank website](https://www.foerderdatenbank.de/FDB/DE/Home/home.html) of the BMWE. 
 
 ## Data
+
 The data contains data for each individual funding program that has been listed on foerderdatenbank.de since June 19th 2025 (the first run of the pipeline). It also includes programs that were once listed but are now deleted. 
 Data should be updated automatically every two days between 2am and 3am (cron syntax: `0 2 */2 * *`). However, due to changes in data structure on foerderdatenbank.de beyond our control that can break the scraper, we cannot guarantee that data is always up-to-date. You can check when the data was last updated by downloading the csv zip file and checking the `Date modified` of the csv file. 
 
@@ -14,7 +15,8 @@ The data are stored as `.parquet` and `.csv` files, which can be downloaded via 
 - **[Link to csv data](https://foerderdatenbankdump.fra1.cdn.digitaloceanspaces.com/data/csv_data.zip)** -> due to limitations of the csv format, this file does not include all available columns and list and struct data were converted to string.
 
 
-The data contains columns containing the the information for each funding program ("Förderprogramm") that is available on its individual detail page. An example of such a detail page is available [here](https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Land/Baden-Wuerttemberg/energie-vom-land-sonne-wind-wasser.html). 
+The data contains columns containing the the information for each funding program ("Förderprogramm") that is available on its individual detail page. 
+
 The columns are defined and further explained in the file [`funding_crawler/models.py`](https://github.com/CorrelAid/cdl_funding_scraper/blob/main/funding_crawler/models.py). 
 
 In addition to those columns, the data contain additional meta columns:
@@ -27,6 +29,7 @@ In addition to those columns, the data contain additional meta columns:
 Dates correspond to the date of the pipeline run when changes were detected.
 
 ## License
+
 ### Code 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
