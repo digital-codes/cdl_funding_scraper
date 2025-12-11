@@ -1,4 +1,4 @@
-**Data is currently not being updated due to bugs on the website that cause inconsistent ordering**
+**Data is live again (Dec/11/25) after a few months of pausing. We were hoping for bugs on the website (duplicates, inconsistent result counts) to be fixed, but now added workarounds to the code.**
 
 # Funding Scraper
 
