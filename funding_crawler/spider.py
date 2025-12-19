@@ -13,11 +13,17 @@ translate_map = {
     "Rechtsgrundlage": "legal_basis",
     "Ansprechpunkt": "contact_info",
     "Weiterführende Links": "further_links",
+    "WeiterfuehrendeLinks": "further_links",  # ASCII variant
     "Förderart": "funding_type",
+    "Foerderart": "funding_type",  # ASCII variant
     "Förderbereich": "funding_area",
+    "Foerderbereich": "funding_area",  # ASCII variant
     "Fördergebiet": "funding_location",
+    "Foerdergebiet": "funding_location",  # ASCII variant
     "Förderberechtigte": "eligible_applicants",
+    "Foerderberechtigte": "eligible_applicants",  # ASCII variant
     "Fördergeber": "funding_body",
+    "Foerdergeber": "funding_body",  # ASCII variant
 }
 
 
@@ -181,10 +187,10 @@ class FundingSpider(Spider):
             if key:
                 key = translate_map.get(key.strip().replace(":", ""))
                 if not key:
-                    self.logger.warning("Field not in translate map: ", key.strip())
+                    self.logger.warning("Field not in translate map: %s", key)
                     continue
             else:
-                self.logger.warning("Field couldnt be extracted: ", dt, dd)
+                self.logger.warning("Field couldnt be extracted: %s %s", dt, dd)
                 continue
 
             if key in [
@@ -198,9 +204,9 @@ class FundingSpider(Spider):
                 dct[key] = lst if lst else None
 
             elif key == "funding_body":
-                # /html/body/main/div[1]/div[2]/div/dl/dd[4]/p/a/span
+                # Try both umlaut and ASCII versions of the title attribute
                 str = dd.xpath(
-                    "p[@class='card--title']/a[@title='Öffnet die Einzelsicht']/span[@class='link--label']/text()"
+                    "p[@class='card--title']/a[@title='Öffnet die Einzelsicht' or @title='OeffnetEinzelsicht']/span[@class='link--label']/text()"
                 ).get()
                 dct[key] = str.strip() if str else None
 
@@ -218,7 +224,7 @@ class FundingSpider(Spider):
                 dct["contact_info_institution"] = (
                     " ".join(
                         dd.xpath(
-                            ".//a[@title='Öffnet die Einzelsicht']/span[@class='link--label']//text()"
+                            ".//a[@title='Öffnet die Einzelsicht' or @title='OeffnetEinzelsicht']/span[@class='link--label']//text()"
                         ).getall()
                     ).strip()
                     or None

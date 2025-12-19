@@ -209,3 +209,56 @@ def test_parse_details_rechts_only():
         in validated_item.title
     )
     assert "non-formalen und informellen Bildungsbereich" in validated_item.title
+
+
+def test_parse_details_fail_19_12():
+    """Test that spider handles Hessen program with Rechtsgrundlage in rich-text format"""
+    spider = FundingSpider()
+
+    with open("tests/test_scrapy/detail_fail_19_12.html") as f:
+        detail_html = f.read()
+
+    response = HtmlResponse(
+        url="https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Land/Hessen/fue-unternehmen-hessen-864943.html",
+        body=detail_html,
+        encoding="utf-8",
+    )
+
+    results = list(spider.parse_details(response))
+
+    assert len(results) == 1, "Should return exactly one item"
+
+    item = results[0]
+
+    try:
+        validated_item = FundingProgramSchema(**item)
+    except ValidationError as e:
+        raise AssertionError(f"Validation error: {e}")
+
+    # Verify key fields
+    assert (
+        validated_item.title == "Förderung von Forschung und Entwicklung in Unternehmen"
+    )
+    # Rechtsgrundlage appears in rich-text div, so it gets captured as description
+    assert validated_item.description is not None
+    assert "Rechtsgrundlage" in validated_item.description
+    assert (
+        "Richtlinie des Landes Hessen zur Innovationsförderung"
+        in validated_item.description
+    )
+    assert validated_item.funding_type == ["zuschuss"]
+    assert validated_item.funding_area == ["forschung_innovation_themenspezifisch"]
+    assert validated_item.funding_location == ["hessen"]
+    assert validated_item.eligible_applicants == ["unternehmen"]
+    assert validated_item.contact_info_email == "info@wibank.de"
+    assert (
+        validated_item.contact_info_institution
+        == "Wirtschafts- und Infrastrukturbank Hessen (WIBank)"
+    )
+    assert (
+        validated_item.funding_body
+        == "Hessisches Ministerium für Wirtschaft, Energie, Verkehr, Wohnen und ländlichen Raum"
+    )
+    assert validated_item.further_links == [
+        "https://foerderportal.wibank.de/site/#/public/home"
+    ]

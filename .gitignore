@@ -6,7 +6,7 @@ logs/*
 *.duckdb
 
 *.parquet
-
+backups/
 .env
 
 errors/*
