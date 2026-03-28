@@ -499,7 +499,7 @@ send2trash==1.8.3
     # via jupyter-server
 service-identity==24.2.0
     # via scrapy
-setuptools==75.6.0
+setuptools==78.1.1
     # via
     #   dlt
     #   incremental
