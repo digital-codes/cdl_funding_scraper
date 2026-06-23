@@ -110,7 +110,7 @@ executing==2.2.0
     # via stack-data
 fastjsonschema==2.21.1
     # via nbformat
-filelock==3.16.1
+filelock==3.20.3
     # via
     #   tldextract
     #   virtualenv
